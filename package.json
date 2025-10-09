@@ -1,0 +1,14 @@
+{
+  "name": "expressive-assistant.v2",
+  "version": "1.0.0",
+  "description": "This is expressive assistant project for restapi",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "komikodok",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
