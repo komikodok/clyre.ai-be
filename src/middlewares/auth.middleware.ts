@@ -6,7 +6,7 @@ import { errorResponse } from '../utils/response';
 
 export interface AuthRequest extends Request {
   user: {
-    id: number;
+    id: string;
     username: string;
   };
 }
@@ -18,7 +18,7 @@ export default (req: Request, res: Response, next: NextFunction) => {
     return errorResponse(res, StatusCodes.UNAUTHORIZED, 'Unauthorized', 'No token provided.')
 
   try {
-    const user = jwt.verify(token) as JwtPayload & { id: number, username: string }
+    const user = jwt.verify(token) as JwtPayload & { id: string, username: string }
     (req as AuthRequest).user = user
     return next();
   } catch {

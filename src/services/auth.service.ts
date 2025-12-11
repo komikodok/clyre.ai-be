@@ -18,13 +18,18 @@ const authService = {
         if (countUser === 1) {
             throw new ResponseError("User already exists", StatusCodes.CONFLICT)
         }
-    
+        
         const hashedPassword = await bcrypt.hash(userDataValidate.password, 10)
     
         await prisma.user.create({
             data: {
                 ...userDataValidate,
                 password: hashedPassword
+            },
+            select: {
+                id: true,
+                username: true,
+                email: true
             }
         })
     

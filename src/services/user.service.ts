@@ -17,7 +17,7 @@ const userService = {
         })
         return users
     },
-    getById: async (id: number) => {
+    getById: async (id: string) => {
         const user = await prisma.user.findUnique({ 
             where: { id }, 
             select: {
@@ -33,7 +33,7 @@ const userService = {
 
         return user
     },
-    update: async (id: number, data: IUser) => {
+    update: async (id: string, data: IUser) => {
         const userDataValidate = validate(userSchema, data)        
 
         const user = await prisma.user.findUnique({ where: { id } })

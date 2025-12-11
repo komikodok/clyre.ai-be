@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 const SECRET = process.env.JWT_SECRET_KEY as string
 
 interface IPayload {
-  id: number;
+  id: string;
   username: string;
 }
 

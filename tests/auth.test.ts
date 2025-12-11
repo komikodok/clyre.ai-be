@@ -1,8 +1,6 @@
 import request from "supertest"
 import app from "../src/api/app"
-import { StatusCodes } from "http-status-codes"
 import prisma from "../src/lib/prisma"
-import { logger } from "../src/utils/logging"
 
 describe("POST /api/auth/register", () => {
     afterEach(async () => {

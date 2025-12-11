@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
-import prisma from '../lib/prisma'
 import userService from '../services/user.service'
 import { successResponse } from '../utils/response'
 import { AuthRequest } from '../middlewares/auth.middleware'
@@ -12,7 +11,7 @@ class UserController {
         successResponse(res, StatusCodes.OK, 'Users fetched successfully.', users)
     }
     async getUserById(req: Request, res: Response, next: NextFunction) {
-        const user = await userService.getById(Number(req.params.id))
+        const user = await userService.getById(req.params.id)
 
         successResponse(res, StatusCodes.OK, 'User fetched successfully.', user)
     }
@@ -24,7 +23,7 @@ class UserController {
         successResponse(res, StatusCodes.OK, 'User fetched successfully.', user)
     }
     async update(req: Request, res: Response, next: NextFunction) {
-        const user = await userService.update(Number(req.params.id), req.body)
+        const user = await userService.update(req.params.id, req.body)
 
         successResponse(res, StatusCodes.OK, 'User updated successfully.', user)
     }
