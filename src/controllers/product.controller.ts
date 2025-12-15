@@ -9,10 +9,30 @@ class ProductController {
 
         successResponse(res, 200, 'Products fetched successfully.', products)
     }
-    async getProductById(req: Request, res: Response) {}
-    async create(req: Request, res: Response) {}
-    async update(req: Request, res: Response) {}
-    async delete(req: Request, res: Response) {}
+
+    async getProductById(req: Request, res: Response) {
+        const product = await productService.getById(req.params.id)
+
+        successResponse(res, 200, 'Product fetched successfully.', product)
+    }
+
+    async create(req: Request, res: Response) {
+        const product = await productService.create(req.body)
+
+        successResponse(res, 201, 'Product created successfully.', product)
+    }
+
+    async update(req: Request, res: Response) {
+        const product = await productService.update(req.params.id, req.body)
+
+        successResponse(res, 200, 'Product updated successfully.', product)
+    }
+
+    async delete(req: Request, res: Response) {
+        await productService.delete(req.params.id)
+
+        successResponse(res, 200, 'Product deleted successfully.', null)
+    }
 }
 
 export default new ProductController()

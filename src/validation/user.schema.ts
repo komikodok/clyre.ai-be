@@ -5,3 +5,5 @@ export const userSchema = object({
     username: z.string().max(50).min(3),
     password: z.string().max(50).min(6),
 })
+
+export const updateUserSchema = userSchema.partial()

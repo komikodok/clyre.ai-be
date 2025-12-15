@@ -1,10 +1,37 @@
+import { StatusCodes } from "http-status-codes"
 import prisma from "../lib/prisma"
+import ResponseError from "../utils/error"
+import { createProductSchema, updateProductSchema } from "../validation/product.schema"
+import validate from "../validation/validation"
+import { slugify } from "../utils/slugify"
 
 type ProductQueryParams = {
     page?: number,
     limit?: number,
     search?: string,
     sort?: 'asc' | 'desc'
+}
+
+type CreateProductData = {
+    sku?: string,
+    name: string,
+    slug?: string,
+    description?: string,
+    priceAmount: number,
+    priceCurrency?: 'IDR' | 'USD',
+    stock?: number,
+    categoryId: string
+}
+
+type UpdateProductData = {
+    sku?: string,
+    name?: string,
+    slug?: string,
+    description?: string,
+    priceAmount?: number,
+    priceCurrency?: 'IDR' | 'USD',
+    stock?: number,
+    categoryId?: string
 }
 
 export const productService = {
@@ -24,14 +51,16 @@ export const productService = {
         } : undefined
 
         const totalItems = await prisma.product.count({ where: filter })
-        
+
         const products = await prisma.product.findMany({
             where: filter,
             orderBy: { name: sort },
             skip,
             take: limit,
             include: {
-                category: true
+                category: true,
+                images: true,
+                variants: true
             }
         })
 
@@ -46,16 +75,133 @@ export const productService = {
             limit
         }
     },
-    getById: async () => {
-        //
+    getById: async (id: string) => {
+        const product = await prisma.product.findUnique({
+            where: { id },
+            include: {
+                category: true,
+                images: {
+                    orderBy: { order: 'asc' }
+                },
+                variants: true
+            }
+        })
+
+        if (!product) {
+            throw new ResponseError("Product not found", StatusCodes.NOT_FOUND)
+        }
+
+        return { data: product }
     },
-    create: async () => {
-        //
+    create: async (data: CreateProductData) => {
+        const productValidate = validate(createProductSchema, data)
+
+        const category = await prisma.category.findUnique({
+            where: { id: productValidate.categoryId }
+        })
+        if (!category) {
+            throw new ResponseError("Category not found", StatusCodes.NOT_FOUND)
+        }
+
+        const slug = productValidate.slug || slugify(productValidate.name)
+
+        const existingProduct = await prisma.product.findUnique({
+            where: { slug }
+        })
+        if (existingProduct) {
+            throw new ResponseError("Product with this slug already exists", StatusCodes.CONFLICT)
+        }
+
+        const product = await prisma.product.create({
+            data: {
+                sku: productValidate.sku,
+                name: productValidate.name,
+                slug,
+                description: productValidate.description,
+                priceAmount: productValidate.priceAmount,
+                priceCurrency: productValidate.priceCurrency || 'IDR',
+                stock: productValidate.stock || 0,
+                categoryId: productValidate.categoryId
+            },
+            include: {
+                category: true,
+                images: true,
+                variants: true
+            }
+        })
+
+        return { data: product }
     },
-    update: async () => {
-        //
+    update: async (id: string, data: UpdateProductData) => {
+        const productValidate = validate(updateProductSchema, data)
+
+        const existingProduct = await prisma.product.findUnique({
+            where: { id }
+        })
+
+        if (!existingProduct) {
+            throw new ResponseError("Product not found", StatusCodes.NOT_FOUND)
+        }
+
+        if (productValidate.categoryId) {
+            const category = await prisma.category.findUnique({
+                where: { id: productValidate.categoryId }
+            })
+
+            if (!category) {
+                throw new ResponseError("Category not found", StatusCodes.NOT_FOUND)
+            }
+        }
+
+        let slug = productValidate.slug
+        if (productValidate.name && !productValidate.slug) {
+            slug = slugify(productValidate.name)
+        }
+
+        if (slug && slug !== existingProduct.slug) {
+            const slugExists = await prisma.product.findUnique({
+                where: { slug }
+            })
+
+            if (slugExists) {
+                throw new ResponseError("Product with this slug already exists", StatusCodes.CONFLICT)
+            }
+        }
+
+        const product = await prisma.product.update({
+            where: { id },
+            data: {
+                sku: productValidate.sku,
+                name: productValidate.name,
+                slug,
+                description: productValidate.description,
+                priceAmount: productValidate.priceAmount,
+                priceCurrency: productValidate.priceCurrency,
+                stock: productValidate.stock,
+                categoryId: productValidate.categoryId
+            },
+            include: {
+                category: true,
+                images: true,
+                variants: true
+            }
+        })
+
+        return { data: product }
     },
-    delete: async () => {
-        //
+    delete: async (id: string) => {
+        const product = await prisma.product.findUnique({
+            where: { id }
+        })
+
+        if (!product) {
+            throw new ResponseError("Product not found", StatusCodes.NOT_FOUND)
+        }
+
+        await prisma.product.delete({
+            where: { id }
+        })
+
+        return { data: null }
     },
 }

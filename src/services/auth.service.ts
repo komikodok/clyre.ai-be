@@ -10,17 +10,17 @@ import jwt from "../utils/jwt";
 const authService = {
     register: async (data: Register) => {
         const userDataValidate = validate(registerSchema, data)
-    
+
         const countUser = await prisma.user.count({
             where: { email: userDataValidate.email }
         })
-    
+
         if (countUser === 1) {
             throw new ResponseError("User already exists", StatusCodes.CONFLICT)
         }
-        
+
         const hashedPassword = await bcrypt.hash(userDataValidate.password, 10)
-    
+
         await prisma.user.create({
             data: {
                 ...userDataValidate,
@@ -32,27 +32,27 @@ const authService = {
                 email: true
             }
         })
-    
-        return null
+
+        return { data: null }
     },
-    
+
     login: async (data: Login) => {
         const loginDataValidate = validate(loginSchema, data)
-    
+
         const user = await prisma.user.findUnique({
             where: { email: loginDataValidate.email }
         })
         if (!user) {
             throw new ResponseError("User not found", 404)
         }
-    
+
         const isValidPassword = await bcrypt.compare(loginDataValidate.password, user.password)
         if (!isValidPassword) {
             throw new ResponseError("Invalid email or password", 401)
         }
-    
+
         const token = jwt.sign({ id: user.id, username: user.username })
-    
+
         return { data: { token } }
     }
 }

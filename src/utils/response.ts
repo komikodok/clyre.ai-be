@@ -21,7 +21,7 @@ const errorResponse = (res: Response, code: number, message: string, error: any)
         },
         error: error
     })
-    
+
     return res.status(code).json({
         meta: {
             code,

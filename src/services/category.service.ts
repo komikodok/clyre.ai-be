@@ -23,7 +23,7 @@ const categoryService = {
             throw new ResponseError("Category already exists", StatusCodes.CONFLICT)
         }
 
-        const createCategory = await prisma.category.create({ 
+        const createCategory = await prisma.category.create({
             data: {
                 name: categoryValidate.name.toLowerCase()
             }
@@ -39,7 +39,7 @@ const categoryService = {
 
         await prisma.category.delete({ where: { id } })
 
-        return null
+        return { data: null }
     }
 }
 

@@ -8,7 +8,7 @@ import { createVariantSchema } from "../validation/variant.schema"
 const variantService = {
     getAll: async (query?: { search?: string }) => {
         const search = query?.search
-        
+
         const variants = await prisma.productVariant.findMany({
             where: search ? { name: { contains: search } } : {}
         })
@@ -22,7 +22,7 @@ const variantService = {
         if (countVariant === 1) {
             throw new ResponseError("Variant already exists", StatusCodes.CONFLICT)
         }
-        
+
         const createVariant = await prisma.productVariant.create({
             data: {
                 ...variantValidate,
@@ -40,7 +40,7 @@ const variantService = {
 
         await prisma.productVariant.delete({ where: { id } })
 
-        return null
+        return { data: null }
     }
 }
 

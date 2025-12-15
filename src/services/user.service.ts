@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs"
 import prisma from "../lib/prisma"
 import { IUser } from "../types/user.type"
 import ResponseError from "../utils/error"
-import { userSchema } from "../validation/user.schema"
+import { updateUserSchema, userSchema } from "../validation/user.schema"
 import validate from "../validation/validation"
 
 const userService = {
@@ -18,8 +18,8 @@ const userService = {
         return { data: users }
     },
     getById: async (id: string) => {
-        const user = await prisma.user.findUnique({ 
-            where: { id }, 
+        const user = await prisma.user.findUnique({
+            where: { id },
             select: {
                 id: true,
                 email: true,
@@ -34,7 +34,7 @@ const userService = {
         return { data: user }
     },
     update: async (id: string, data: IUser) => {
-        const userDataValidate = validate(userSchema, data)        
+        const userDataValidate = validate(updateUserSchema, data)
 
         const user = await prisma.user.findUnique({ where: { id } })
         if (!user) {
@@ -57,7 +57,7 @@ const userService = {
                 email: true,
                 username: true,
                 image: true
-            }  
+            }
         })
 
         return { data: updateUser }
