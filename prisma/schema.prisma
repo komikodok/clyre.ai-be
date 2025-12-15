@@ -37,7 +37,7 @@ model Product {
   categoryId    String
   category      Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
-  images        ProductImage[]?
+  images        ProductImage[]
   variants      ProductVariant[]
 
   @@index([name])
@@ -47,23 +47,25 @@ model Product {
 
 model ProductImage {
   id String @id @default(uuid())
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  productId String
   url       String
   alt       String?
   order     Int      @default(0)
+  
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
 
   @@index([productId])
 }
 
 model ProductVariant {
   id String @id @default(uuid())
-  product     Product  @relation(fields: [productId], references: [id])
-  productId   String
   name        String?  
   stock       Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId   String
 
   @@index([productId])
 }

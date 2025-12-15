@@ -13,7 +13,7 @@ const categoryService = {
             where: search ? { name: { contains: search } } : {}
         })
 
-        return categories
+        return { data: categories }
     },
     create: async (data: { name: string }) => {
         const categoryValidate = validate(categorySchema, data)
@@ -29,7 +29,7 @@ const categoryService = {
             }
         })
 
-        return createCategory
+        return { data: createCategory }
     },
     delete: async (id: string) => {
         const countCategory = await prisma.category.count({ where: { id } })

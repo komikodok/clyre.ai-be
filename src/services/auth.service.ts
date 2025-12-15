@@ -53,7 +53,7 @@ const authService = {
     
         const token = jwt.sign({ id: user.id, username: user.username })
     
-        return token
+        return { data: { token } }
     }
 }
 

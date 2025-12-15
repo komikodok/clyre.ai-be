@@ -4,11 +4,7 @@ import { successResponse } from "../utils/response"
 
 class CategoryController {
     async getAll(req: Request, res: Response) {
-        const search = req.query.search
-        
-        const categories = await categoryService.getAll({
-            search: search ? String(search) : undefined
-        })
+        const categories = await categoryService.getAll(req.query)
 
         successResponse(res, 200, 'Categories fetched successfully.', categories)
     }

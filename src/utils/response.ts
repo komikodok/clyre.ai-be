@@ -8,7 +8,7 @@ const successResponse = (res: Response, code: number, message: string, data: any
             status: 'success',
             message
         },
-        data: data
+        ...data
     })
 }
 

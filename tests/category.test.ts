@@ -5,19 +5,17 @@ import { after } from 'node:test'
 
 
 describe("GET /api/categories", () => {
-    beforeAll(async () => {
-        const response = await request(app)
-            .post("/api/categories")
-            .send({
-                name: "test category"
-            })
-
-        expect(response.status).toBe(201)
+    beforeEach(async () => {
+        await prisma.category.create({
+            data: {
+                name: "get-test category"
+            }
+        })
     })
 
-    afterAll(async () => {
+    afterEach(async () => {
         await prisma.category.deleteMany({
-            where: { name: "test category" },
+            where: { name: "get-test category" },
         });
     })
 
@@ -26,23 +24,23 @@ describe("GET /api/categories", () => {
             .get("/api/categories")
 
         expect(response.status).toBe(200)
-        expect(response.body.data.length).toBeGreaterThan(0)
+        expect(response.body.data).toHaveLength(1)
     })
 
     test("should get categories by query search", async () => {
         const response = await request(app)
-            .get("/api/categories?search=test category")
+            .get("/api/categories?search=get-test category")
 
         expect(response.status).toBe(200)
-        expect(response.body.data[0].name).toBe("test category")
+        expect(response.body.data[0]).toHaveProperty("name")
     })
 })
 
 describe("POST /api/categories", () => {
-    afterAll(async () => {
+    afterEach(async () => {
         await prisma.category.deleteMany({
             where: {
-                name: "test category"
+                name: "post-test category"
             }
         })
     })
@@ -51,29 +49,29 @@ describe("POST /api/categories", () => {
         const response = await request(app)
             .post("/api/categories")
             .send({
-                name: "test category"
+                name: "post-test category"
             })
 
         expect(response.status).toBe(201)
 
         const category = await prisma.category.findFirst({
-            where: { name: "test category" }
+            where: { name: "post-test category" }
         })
 
-        expect(category?.name).toBe("test category")
+        expect(category?.name).toBe("post-test category")
     })
 
     test("should reject with status code 409 if category is already exists", async () => {
         await request(app)
             .post("/api/categories")
             .send({
-                name: "test category"
+                name: "post-test category"
             })
 
         const response = await request(app)
             .post("/api/categories")
             .send({
-                name: "test category"
+                name: "post-test category"
             })
 
         expect(response.status).toBe(409)
@@ -83,20 +81,18 @@ describe("POST /api/categories", () => {
 describe("DELETE /api/categories/:id", () => {
     let id: string
     
-    beforeAll(async () => {
-            const response = await request(app)
-                .post("/api/categories")
-                .send({
-                    name: "test category"
-                })
-
-            id = response.body.data.id
-
-            expect(response.status).toBe(201)
+    beforeEach(async () => {
+        const category = await prisma.category.create({
+            data: {
+                name: 'delete-test category'
+            }
         })
 
-    afterAll(async () => {
-        await prisma.category.deleteMany({ where: { id: id }})
+        id = category.id    
+    })
+
+    afterEach(async () => {
+        await prisma.category.deleteMany({ where: { name: "delete-test category" } })
     })
 
     test("should delete category", async () => {

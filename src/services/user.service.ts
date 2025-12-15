@@ -15,7 +15,7 @@ const userService = {
                 image: true
             }
         })
-        return users
+        return { data: users }
     },
     getById: async (id: string) => {
         const user = await prisma.user.findUnique({ 
@@ -31,7 +31,7 @@ const userService = {
             throw new ResponseError("User not found", 404)
         }
 
-        return user
+        return { data: user }
     },
     update: async (id: string, data: IUser) => {
         const userDataValidate = validate(userSchema, data)        
@@ -60,7 +60,7 @@ const userService = {
             }  
         })
 
-        return updateUser
+        return { data: updateUser }
     }
 }
 

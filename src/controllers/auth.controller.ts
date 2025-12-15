@@ -11,9 +11,9 @@ class AuthController {
   }
 
   async login(req: Request, res: Response, next: NextFunction) {
-    const token = await authService.login(req.body)
+    const data = await authService.login(req.body)
 
-    successResponse(res, StatusCodes.OK, 'Login successful.', { token })
+    successResponse(res, StatusCodes.OK, 'Login successful.', data)
   }
 }
 
