@@ -8,7 +8,7 @@ export const createProductSchema = object({
     priceAmount: z.number().min(0),
     priceCurrency: z.enum(['IDR', 'USD']).default('IDR'),
     stock: z.number().min(0).default(0),
-    categoryId: z.string().max(38)
+    categoryId: z.string().max(38),
 });
 
 export const updateProductSchema = object({
@@ -19,5 +19,5 @@ export const updateProductSchema = object({
     priceAmount: z.number().min(0).optional(),
     priceCurrency: z.enum(['IDR', 'USD']).optional(),
     stock: z.number().min(0).optional(),
-    categoryId: z.string().max(38).optional()
+    categoryId: z.string().max(38).optional(),
 });

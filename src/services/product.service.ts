@@ -4,35 +4,12 @@ import ResponseError from "../utils/error"
 import { createProductSchema, updateProductSchema } from "../validation/product.schema"
 import validate from "../validation/validation"
 import { slugify } from "../utils/slugify"
+import {
+    ProductQueryParams,
+    CreateProductData,
+    UpdateProductData
+} from "../types/product.type"
 
-type ProductQueryParams = {
-    page?: number,
-    limit?: number,
-    search?: string,
-    sort?: 'asc' | 'desc'
-}
-
-type CreateProductData = {
-    sku?: string,
-    name: string,
-    slug?: string,
-    description?: string,
-    priceAmount: number,
-    priceCurrency?: 'IDR' | 'USD',
-    stock?: number,
-    categoryId: string
-}
-
-type UpdateProductData = {
-    sku?: string,
-    name?: string,
-    slug?: string,
-    description?: string,
-    priceAmount?: number,
-    priceCurrency?: 'IDR' | 'USD',
-    stock?: number,
-    categoryId?: string
-}
 
 export const productService = {
     getAll: async (query?: ProductQueryParams) => {
@@ -80,9 +57,7 @@ export const productService = {
             where: { id },
             include: {
                 category: true,
-                images: {
-                    orderBy: { order: 'asc' }
-                },
+                images: true,
                 variants: true
             }
         })
@@ -121,7 +96,7 @@ export const productService = {
                 priceAmount: productValidate.priceAmount,
                 priceCurrency: productValidate.priceCurrency || 'IDR',
                 stock: productValidate.stock || 0,
-                categoryId: productValidate.categoryId
+                categoryId: productValidate.categoryId,
             },
             include: {
                 category: true,
@@ -178,7 +153,7 @@ export const productService = {
                 priceAmount: productValidate.priceAmount,
                 priceCurrency: productValidate.priceCurrency,
                 stock: productValidate.stock,
-                categoryId: productValidate.categoryId
+                categoryId: productValidate.categoryId,
             },
             include: {
                 category: true,
