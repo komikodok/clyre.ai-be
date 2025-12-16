@@ -20,7 +20,8 @@ class ProductController {
     }
 
     async getProductById(req: Request, res: Response) {
-        const product = await productService.getById(req.params.id)
+        const { productId } = req.params
+        const product = await productService.getById(productId)
 
         successResponse(res, 200, 'Product fetched successfully.', product)
     }
@@ -32,13 +33,15 @@ class ProductController {
     }
 
     async update(req: Request, res: Response) {
-        const product = await productService.update(req.params.id, req.body)
+        const { productId } = req.params
+        const product = await productService.update(productId, req.body)
 
         successResponse(res, 200, 'Product updated successfully.', product)
     }
 
     async delete(req: Request, res: Response) {
-        await productService.delete(req.params.id)
+        const { productId } = req.params
+        await productService.delete(productId)
 
         successResponse(res, 200, 'Product deleted successfully.', null)
     }

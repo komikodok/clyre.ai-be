@@ -11,9 +11,9 @@ describe("Product API Integration Tests", () => {
         DELETE: "Test Headphones"
     }
 
+    let productId: string
     let testCategoryId: string
 
-    // Create a test category for all product tests
     beforeAll(async () => {
         const category = await prisma.category.create({
             data: { name: "test-electronics" }
@@ -21,7 +21,6 @@ describe("Product API Integration Tests", () => {
         testCategoryId = category.id
     })
 
-    // Clean up test category after all tests
     afterAll(async () => {
         await prisma.category.deleteMany({
             where: { name: "test-electronics" }
@@ -77,7 +76,6 @@ describe("Product API Integration Tests", () => {
             expect(Array.isArray(response.body.data)).toBe(true)
             expect(response.body.data.length).toBeGreaterThanOrEqual(1)
 
-            // Check pagination metadata
             expect(response.body).toHaveProperty('totalItems')
             expect(response.body).toHaveProperty('totalPages')
             expect(response.body).toHaveProperty('limit')
@@ -143,9 +141,7 @@ describe("Product API Integration Tests", () => {
         })
     })
 
-    describe("GET /api/products/:id", () => {
-        let productId: string
-
+    describe("GET /api/products/:productId", () => {
         beforeEach(async () => {
             const product = await createTestProduct(TEST_PRODUCTS.GET)
             productId = product.id
@@ -208,7 +204,6 @@ describe("Product API Integration Tests", () => {
             expect(response.body.data.priceAmount).toBe(5000000)
             expect(response.body.data.stock).toBe(20)
 
-            // Verify in database
             const product = await prisma.product.findFirst({
                 where: { name: TEST_PRODUCTS.POST }
             })
@@ -323,9 +318,7 @@ describe("Product API Integration Tests", () => {
         })
     })
 
-    describe("PATCH /api/products/:id", () => {
-        let productId: string
-
+    describe("PATCH /api/products/:productId", () => {
         beforeEach(async () => {
             const product = await createTestProduct(TEST_PRODUCTS.UPDATE, 3000000)
             productId = product.id
@@ -351,7 +344,6 @@ describe("Product API Integration Tests", () => {
             expect(response.body.data.priceAmount).toBe(4000000)
             expect(response.body.data.stock).toBe(30)
 
-            // Verify in database
             const product = await prisma.product.findUnique({
                 where: { id: productId }
             })
@@ -440,9 +432,7 @@ describe("Product API Integration Tests", () => {
         })
     })
 
-    describe("DELETE /api/products/:id", () => {
-        let productId: string
-
+    describe("DELETE /api/products/:productId", () => {
         beforeEach(async () => {
             const product = await createTestProduct(TEST_PRODUCTS.DELETE)
             productId = product.id
@@ -461,7 +451,6 @@ describe("Product API Integration Tests", () => {
             expect(response.body.meta).toHaveProperty('code', 200)
             expect(response.body.meta).toHaveProperty('message')
 
-            // Verify deletion in database
             const product = await prisma.product.findUnique({
                 where: { id: productId }
             })

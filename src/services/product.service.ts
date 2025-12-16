@@ -52,9 +52,9 @@ export const productService = {
             limit
         }
     },
-    getById: async (id: string) => {
+    getById: async (productId: string) => {
         const product = await prisma.product.findUnique({
-            where: { id },
+            where: { id: productId },
             include: {
                 category: true,
                 images: true,
@@ -107,11 +107,11 @@ export const productService = {
 
         return { data: product }
     },
-    update: async (id: string, data: UpdateProductData) => {
+    update: async (productId: string, data: UpdateProductData) => {
         const productValidate = validate(updateProductSchema, data)
 
         const existingProduct = await prisma.product.findUnique({
-            where: { id }
+            where: { id: productId }
         })
 
         if (!existingProduct) {
@@ -144,7 +144,7 @@ export const productService = {
         }
 
         const product = await prisma.product.update({
-            where: { id },
+            where: { id: productId },
             data: {
                 sku: productValidate.sku,
                 name: productValidate.name,
@@ -164,9 +164,9 @@ export const productService = {
 
         return { data: product }
     },
-    delete: async (id: string) => {
+    delete: async (productId: string) => {
         const product = await prisma.product.findUnique({
-            where: { id }
+            where: { id: productId }
         })
 
         if (!product) {
@@ -174,7 +174,7 @@ export const productService = {
         }
 
         await prisma.product.delete({
-            where: { id }
+            where: { id: productId }
         })
 
         return { data: null }

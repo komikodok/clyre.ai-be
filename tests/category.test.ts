@@ -162,7 +162,7 @@ describe("Category API Integration Tests", () => {
         })
     })
 
-    describe("DELETE /api/categories/:id", () => {
+    describe("DELETE /api/categories/:categoryId", () => {
         let categoryId: string
 
         beforeEach(async () => {

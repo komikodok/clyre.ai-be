@@ -6,9 +6,9 @@ import productController from "../controllers/product.controller";
 const productRouter = Router()
 
 productRouter.get('/', rescue(productController.getAll))
-productRouter.get('/:id', rescue(productController.getProductById))
+productRouter.get('/:productId', rescue(productController.getProductById))
 productRouter.post('/', rescue(productController.create))
-productRouter.patch('/:id', rescue(productController.update))
-productRouter.delete('/:id', rescue(productController.delete))
+productRouter.patch('/:productId', rescue(productController.update))
+productRouter.delete('/:productId', rescue(productController.delete))
 
 export default productRouter

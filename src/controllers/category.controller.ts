@@ -14,7 +14,8 @@ class CategoryController {
         successResponse(res, 201, 'Category created successfully.', category)
     }
     async delete(req: Request, res: Response) {
-        const category = await categoryService.delete(req.params.id)
+        const { categoryId } = req.params
+        const category = await categoryService.delete(categoryId)
 
         successResponse(res, 200, 'Category deleted successfully.', category)
     }

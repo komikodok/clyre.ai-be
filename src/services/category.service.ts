@@ -31,13 +31,13 @@ const categoryService = {
 
         return { data: createCategory }
     },
-    delete: async (id: string) => {
-        const countCategory = await prisma.category.count({ where: { id } })
+    delete: async (categoryId: string) => {
+        const countCategory = await prisma.category.count({ where: { id: categoryId } })
         if (countCategory === 0) {
             throw new ResponseError("Category is not found", StatusCodes.NOT_FOUND)
         }
 
-        await prisma.category.delete({ where: { id } })
+        await prisma.category.delete({ where: { id: categoryId } })
 
         return { data: null }
     }
