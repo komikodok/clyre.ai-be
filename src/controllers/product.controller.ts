@@ -5,7 +5,16 @@ import { successResponse } from "../utils/response"
 
 class ProductController {
     async getAll(req: Request, res: Response) {
-        const products = await productService.getAll(req.query)
+        const { page, limit, search, sort } = req.query
+
+        const queryParams = {
+            page: page ? parseInt(page as string) : undefined,
+            limit: limit ? parseInt(limit as string) : undefined,
+            search: search as string | undefined,
+            sort: sort as 'asc' | 'desc' | undefined
+        }
+
+        const products = await productService.getAll(queryParams)
 
         successResponse(res, 200, 'Products fetched successfully.', products)
     }
