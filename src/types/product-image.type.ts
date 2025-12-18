@@ -1,9 +1,6 @@
 export type CreateProductImageData = {
     url: string;
+    publicId: string;
     alt?: string;
 }
 
-export type UpdateProductImageData = {
-    url?: string;
-    alt?: string;
-}

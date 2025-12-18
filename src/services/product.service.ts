@@ -10,13 +10,27 @@ import {
     UpdateProductData
 } from "../types/product.type"
 
+const resolveProductStock = (product: {
+    stock: number
+    variants: { stock: number }[]
+}) => {
+    if (product.variants.length > 0) {
+        return product.variants.reduce(
+            (acc, v) => acc + v.stock,
+            0
+        )
+    }
+
+    return product.stock
+}
+
 
 export const productService = {
     getAll: async (query?: ProductQueryParams) => {
         const page = query?.page || 1
         const limit = query?.limit || 10
         const search = query?.search
-        const sort = query?.sort || 'asc'
+        const sort = query?.sort === 'desc' ? 'desc' : 'asc'
 
         const skip = (page - 1) * limit
 
@@ -43,8 +57,13 @@ export const productService = {
 
         const totalPages = Math.ceil(totalItems / limit)
 
+        const mappedProducts = products.map(product => ({
+            ...product,
+            stock: resolveProductStock(product)
+        }))
+
         return {
-            data: products,
+            data: mappedProducts,
             totalItems,
             totalPages,
             nextPage: page < totalPages ? page + 1 : null,
@@ -66,7 +85,12 @@ export const productService = {
             throw new ResponseError("Product not found", StatusCodes.NOT_FOUND)
         }
 
-        return { data: product }
+        return {
+            data: {
+                ...product,
+                stock: resolveProductStock(product)
+            }
+        }
     },
     create: async (data: CreateProductData) => {
         const productValidate = validate(createProductSchema, data)
@@ -95,7 +119,7 @@ export const productService = {
                 description: productValidate.description,
                 priceAmount: productValidate.priceAmount,
                 priceCurrency: productValidate.priceCurrency || 'IDR',
-                stock: productValidate.stock || 0,
+                stock: productValidate.stock,
                 categoryId: productValidate.categoryId,
             },
             include: {

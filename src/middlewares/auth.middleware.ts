@@ -22,6 +22,6 @@ export default (req: Request, res: Response, next: NextFunction) => {
     (req as AuthRequest).user = user
     return next();
   } catch {
-    return errorResponse(res, StatusCodes.UNAUTHORIZED, 'Unauthorized','No token provided.')
+    return errorResponse(res, StatusCodes.UNAUTHORIZED, 'Unauthorized', 'No token provided.')
   }
 };

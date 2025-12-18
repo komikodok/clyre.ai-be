@@ -31,7 +31,7 @@ KAMU PUNYA TOOL KHUSUS:
 
 const promptTemplate = ChatPromptTemplate.fromMessages([
     ['system', prompt],
-    new MessagesPlaceholder({ 
+    new MessagesPlaceholder({
         variableName: 'chat_history',
         optional: true
     }),
@@ -49,7 +49,7 @@ const models = new ChatGroq({
         models
     ])
 
-    const result = await chain.invoke({input: 'cuaca di kota Pekalongan?', chat_history: []})
+    const result = await chain.invoke({ input: 'cuaca di kota Pekalongan?', chat_history: [] })
 
     const toolExecutor = {
         weather_tools: weatherTools
@@ -61,7 +61,8 @@ const models = new ChatGroq({
         console.log(result.content)
         return
     }
-    
-    console.log(await toolExecutor[toolCalls.name as keyof typeof toolExecutor].func({...toolCalls.args}))
+
+    console.log(await toolExecutor[toolCalls.name as keyof typeof toolExecutor].func({ ...toolCalls.args }))
     console.log(toolCalls)
+    console.log(result)
 })()

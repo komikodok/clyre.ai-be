@@ -11,7 +11,6 @@ describe("Variant API Integration Tests", () => {
 
     let testProductId: string
 
-    // Create a test product and category for all variant tests
     beforeAll(async () => {
         const category = await prisma.category.create({
             data: { name: "test-variant-category" }
@@ -30,7 +29,6 @@ describe("Variant API Integration Tests", () => {
         testProductId = product.id
     })
 
-    // Clean up test data after all tests
     afterAll(async () => {
         await prisma.product.deleteMany({
             where: { name: "Test Variant Product" }
@@ -136,7 +134,6 @@ describe("Variant API Integration Tests", () => {
             expect(response.body.data.stock).toBe(20)
             expect(response.body.data.productId).toBe(testProductId)
 
-            // Verify in database
             const variant = await prisma.productVariant.findFirst({
                 where: { name: TEST_VARIANTS.POST.toLowerCase() }
             })
@@ -261,7 +258,6 @@ describe("Variant API Integration Tests", () => {
             expect(response.body.meta).toHaveProperty('code', 200)
             expect(response.body.meta).toHaveProperty('message')
 
-            // Verify deletion in database
             const variant = await prisma.productVariant.findUnique({
                 where: { id: variantId }
             })

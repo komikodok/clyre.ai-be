@@ -1,9 +1,10 @@
 import prisma from "../lib/prisma";
 import ResponseError from "../utils/error";
-import { CreateProductImageData, UpdateProductImageData } from "../types/product-image.type";
-import { createProductImageSchema, updateProductImageSchema } from "../validation/product-image.schema";
+import { CreateProductImageData } from "../types/product-image.type";
+import { createProductImageSchema } from "../validation/product-image.schema";
 import validate from "../validation/validation";
 import { StatusCodes } from "http-status-codes";
+import cloudinary from "../utils/cloudinary";
 
 export const productImageService = {
     getAll: async (productId: string) => {
@@ -52,10 +53,12 @@ export const productImageService = {
             throw new ResponseError("Image not found", StatusCodes.NOT_FOUND);
         }
 
+        await cloudinary.uploader.destroy(image.publicId)
+
         await prisma.productImage.delete({
             where: { id: imageId }
         });
 
         return { data: null };
-    }
+    },
 };
