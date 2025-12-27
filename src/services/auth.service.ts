@@ -1,7 +1,7 @@
 import { loginSchema, registerSchema } from "../validation/auth.schema";
 import validate from "../validation/validation";
 import ResponseError from "../utils/error";
-import prisma from "../lib/prisma";
+import User from "../models/user.model";
 import bcrypt from "bcryptjs"
 import { StatusCodes } from "http-status-codes";
 import { Login, Register } from "../types/auth.type";
@@ -11,26 +11,18 @@ const authService = {
     register: async (data: Register) => {
         const userDataValidate = validate(registerSchema, data)
 
-        const countUser = await prisma.user.count({
-            where: { email: userDataValidate.email }
-        })
+        const existingUser = await User.findOne({ email: userDataValidate.email })
 
-        if (countUser === 1) {
+        if (existingUser) {
             throw new ResponseError("User already exists", StatusCodes.CONFLICT)
         }
 
-        const hashedPassword = await bcrypt.hash(userDataValidate.password, 10)
+        const { confirm_password, ...userToSave } = userDataValidate;
+        const hashedPassword = await bcrypt.hash(userToSave.password, 10)
 
-        await prisma.user.create({
-            data: {
-                ...userDataValidate,
-                password: hashedPassword
-            },
-            select: {
-                id: true,
-                username: true,
-                email: true
-            }
+        await User.create({
+            ...userToSave,
+            password: hashedPassword
         })
 
         return { data: null }
@@ -39,19 +31,19 @@ const authService = {
     login: async (data: Login) => {
         const loginDataValidate = validate(loginSchema, data)
 
-        const user = await prisma.user.findUnique({
-            where: { email: loginDataValidate.email }
-        })
+        const user = await User
+            .findOne({ email: loginDataValidate.email })
+            .select("+password")
         if (!user) {
             throw new ResponseError("User not found", 404)
         }
 
-        const isValidPassword = await bcrypt.compare(loginDataValidate.password, user.password)
+        const isValidPassword = await bcrypt.compare(loginDataValidate.password, user.password as string)
         if (!isValidPassword) {
             throw new ResponseError("Invalid email or password", 401)
         }
 
-        const token = jwt.sign({ id: user.id, username: user.username })
+        const token = jwt.sign({ id: (user as any).id, username: user.username })
 
         return { data: { token } }
     }

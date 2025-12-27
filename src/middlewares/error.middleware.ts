@@ -21,7 +21,12 @@ const errorMiddleware = (err: any, _req: Request, res: Response, _next: NextFunc
         }))
       )
     default:
-      return errorResponse(res, StatusCodes.INTERNAL_SERVER_ERROR, 'Something went wrong', err)
+      logger.error('Unhandled error:', {
+        message: err?.message,
+        stack: err?.stack,
+        error: err
+      })
+      return errorResponse(res, StatusCodes.INTERNAL_SERVER_ERROR, 'Something went wrong', null)
   }
 }
 

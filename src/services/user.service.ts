@@ -1,32 +1,17 @@
 import bcrypt from "bcryptjs"
-import prisma from "../lib/prisma"
+import User from "../models/user.model";
 import { IUser } from "../types/user.type"
 import ResponseError from "../utils/error"
-import { updateUserSchema, userSchema } from "../validation/user.schema"
+import { updateUserSchema } from "../validation/user.schema"
 import validate from "../validation/validation"
 
 const userService = {
     getAll: async () => {
-        const users = await prisma.user.findMany({
-            select: {
-                id: true,
-                email: true,
-                username: true,
-                image: true
-            }
-        })
+        const users = await User.find({}, "email username image")
         return { data: users }
     },
     getById: async (id: string) => {
-        const user = await prisma.user.findUnique({
-            where: { id },
-            select: {
-                id: true,
-                email: true,
-                username: true,
-                image: true
-            }
-        })
+        const user = await User.findById(id, "email username image")
         if (!user) {
             throw new ResponseError("User not found", 404)
         }
@@ -36,31 +21,33 @@ const userService = {
     update: async (id: string, data: IUser) => {
         const userDataValidate = validate(updateUserSchema, data)
 
-        const user = await prisma.user.findUnique({ where: { id } })
+        const user = await User.findById(id)
         if (!user) {
             throw new ResponseError("User not found", 404)
         }
 
-        let password = user.password
-        if (userDataValidate.password) {
-            password = await bcrypt.hash(userDataValidate.password, 10)
+        const { password, confirm_password, ...updateData } = userDataValidate;
+        const updateFields: any = { ...updateData };
+
+        if (password) {
+            updateFields.password = await bcrypt.hash(password, 10);
         }
 
-        const updateUser = await prisma.user.update({
-            where: { id },
-            data: {
-                ...userDataValidate,
-                password
-            },
-            select: {
-                id: true,
-                email: true,
-                username: true,
-                image: true
-            }
-        })
+        const updateUser = await User.findByIdAndUpdate(
+            id,
+            updateFields,
+            { new: true, select: "email username image" }
+        )
 
         return { data: updateUser }
+    },
+    delete: async (id: string) => {
+        const user = await User.findByIdAndDelete(id)
+        if (!user) {
+            throw new ResponseError("User not found", 404)
+        }
+
+        return { data: null }
     }
 }
 

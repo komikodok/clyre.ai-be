@@ -1,115 +1,36 @@
-# Clyre.ai Backend
+# Ringkasan Aplikasi Medical AI Assistant
 
-Backend service for Clyre.ai, built with Express.js, TypeScript, and Prisma.
+## **Deskripsi Aplikasi**
+Aplikasi backend chatbot kesehatan berbasis AI yang bertindak sebagai asisten medis virtual untuk membantu pengguna memahami gejala penyakit, mendapatkan saran awal, dan panduan langkah selanjutnya dalam penanganan kesehatan mereka.
 
-## 🚀 Tech Stack
+## **Technology Stack**
+- **Express.js**: Framework web untuk membangun RESTful API dan menangani routing
+- **MongoDB + Mongoose**: Database NoSQL untuk menyimpan riwayat percakapan, profil pengguna, dan data medis
+- **LangChain**: Framework untuk membangun aplikasi berbasis LLM dengan chain of thought reasoning
+- **LangGraph**: Orchestration untuk workflow AI yang lebih kompleks dan state management
+- **Jest**: Testing framework untuk unit dan integration testing
 
-- **Runtime**: Node.js
-- **Framework**: Express.js
-- **Language**: TypeScript
-- **Database**: MySQL
-- **ORM**: Prisma
-- **Validation**: Zod
-- **Authentication**: JWT & Bcrypt
-- **AI Integration**: Langchain & Groq
-- **Testing**: Jest & Supertest
+## **Fitur Utama**
+1. **Symptom Checker**: Analisis gejala yang disampaikan pengguna
+2. **Initial Assessment**: Memberikan penilaian awal berdasarkan gejala
+3. **Health Recommendations**: Saran perawatan mandiri dan lifestyle
+4. **Next Steps Guidance**: Rekomendasi apakah perlu konsultasi dokter, ke IGD, atau perawatan di rumah
+5. **Conversation History**: Menyimpan riwayat percakapan untuk referensi
+6. **Multi-turn Dialogue**: Kemampuan bertanya lebih detail untuk diagnosis yang lebih akurat
 
-## 📋 Prerequisites
+## **Arsitektur Sistem**
+- **API Layer**: Express.js REST endpoints
+- **AI Orchestration**: LangGraph untuk workflow management
+- **LLM Integration**: LangChain untuk komunikasi dengan model AI
+- **Data Persistence**: MongoDB untuk storage
 
-- Node.js (v18 or higher)
-- MySQL Database
-- npm or yarn
+## **Use Cases**
+- Pengguna dengan gejala ringan mencari informasi awal
+- Triase mandiri sebelum ke fasilitas kesehatan
+- Edukasi kesehatan dan pencegahan penyakit
+- Tracking gejala dari waktu ke waktu
 
-## 🛠️ Installation & Setup
+## **Pertimbangan Penting**
+⚠️ **Medical Disclaimer**: Aplikasi harus memiliki disclaimer jelas bahwa ini bukan pengganti konsultasi medis profesional dan hanya untuk informasi edukatif/saran awal.
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd clyre.ai
-   ```
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Environment Setup**
-   Copy the example environment file and configure your variables:
-   ```bash
-   cp .env.example .env
-   ```
-   Update `.env` with your configuration:
-   - `DATABASE_URL`: Your MySQL connection string
-   - `JWT_SECRET_KEY`: Secret for token generation
-   - `GROQ_API_KEY`: API key for AI features
-   - `PORT`: Server port (default: 5000)
-
-4. **Database Migration**
-   Push the schema to your database:
-   ```bash
-   npx prisma db push
-   # or
-   npx prisma migrate dev
-   ```
-
-## 🏃‍♂️ Running the Application
-
-**Development Mode:**
-```bash
-npm run dev
-```
-
-**Production Build:**
-```bash
-npm run build
-npm start
-```
-
-## 🧪 Testing
-
-Run endpoints integration tests:
-```bash
-npm test
-```
-
-## 📚 API Documentation
-
-Comprehensive API documentation is available in the `docs` directory.
-
-- [🇬🇧 English Documentation](./docs/en/README.md)
-- [🇮🇩 Dokumentasi Bahasa Indonesia](./docs/id/README.md)
-
-**Quick Links:**
-- [Authentication API](./docs/en/AUTH_API.md)
-- [User API](./docs/en/USER_API.md)
-- [Product API](./docs/en/PRODUCT_API.md)
-- [Category API](./docs/en/CATEGORY_API.md)
-- [Variant API](./docs/en/VARIANT_API.md)
-
-## 📂 Project Structure
-
-```
-src/
-├── api/            # App entry point and route aggregation
-├── chains/         # Langchain AI chains
-├── controllers/    # Request handlers
-├── lib/            # Shared libraries (Prisma client, etc.)
-├── middlewares/    # Express middlewares (Auth, Error, etc.)
-├── routers/        # Route definitions
-├── services/       # Business logic layer
-├── types/          # TypeScript type definitions
-├── utils/          # Utility functions
-└── validation/     # Zod validation schemas
-tests/              # Integration tests
-docs/               # API Documentation
-```
-
-## 🔐 Security
-
-- All endpoints under `/api/products` (Write ops), `/api/users` (except public), and `/api/variants` are protected via JWT.
-- Passwords are hashed using Bcrypt.
-- Input validation is handled using Zod schemas.
-
-## 📄 License
-
-[MIT](LICENSE)
