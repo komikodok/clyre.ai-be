@@ -8,5 +8,6 @@ const agentRouter = Router()
 
 // agentRouter.use(authMiddleware)
 agentRouter.post("/new", rescue(AgentController.new))
+agentRouter.post("/consult/:topic", rescue(AgentController.consult))
 
 export default agentRouter

@@ -11,6 +11,14 @@ class AgentController {
 
         successResponse(res, StatusCodes.OK, "", result)
     }
+
+    static async consult(req: Request, res: Response, next: NextFunction) {
+        const { topic } = req.params
+
+        const result = await agentService.consult(topic, req.body)
+
+        successResponse(res, StatusCodes.OK, "", result)
+    }
 }
 
 export default AgentController

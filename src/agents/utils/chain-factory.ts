@@ -4,6 +4,7 @@ import { RunnableSequence } from "@langchain/core/runnables";
 import dotenv from "dotenv";
 import { StructuredTool } from "langchain";
 import { topicDecisionTool } from "../tools/topic-decision.tool";
+import { initialTopicTool } from "../tools/initial-topic.tool";
 
 
 dotenv.config({ path: ".env" });
@@ -19,7 +20,7 @@ export const createChatModel = (temperature: number = 0.7) => {
 export const createChain = (
     systemPrompt: string,
     temperature: number = 0.2,
-    tools: StructuredTool[] = [topicDecisionTool]
+    tools: StructuredTool[] = [topicDecisionTool, initialTopicTool]
 ) => {
     const model = tools.length > 0
         ? createChatModel(temperature).bindTools(tools)

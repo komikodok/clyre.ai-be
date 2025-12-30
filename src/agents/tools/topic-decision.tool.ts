@@ -4,14 +4,14 @@ import { z } from "zod";
 export const topicDecisionTool = new DynamicStructuredTool({
     name: "topic_decision_tool",
     description: `
-    Analyze the user's message relative to the CURRENT topic.
-    Detect whether the message shows:
-    - clear intent for another consultation topic
-    - or only casual / contextual mentions
+        Analyze the user's message relative to the CURRENT topic.
+        Detect whether the message shows:
+        - clear intent for another consultation topic
+        - or only casual / contextual mentions
 
-    Do NOT diagnose.
-    Do NOT force topic switching.
-  `,
+        Do NOT diagnose.
+        Do NOT force topic switching.
+    `,
     schema: z.object({
         suggested_topic: z.enum([
             "general",
@@ -21,9 +21,9 @@ export const topicDecisionTool = new DynamicStructuredTool({
         ]),
 
         intent_level: z.enum([
-            "none",        // cuma nyebut, konteks ringan
-            "weak",        // indikasi halus
-            "clear"        // jelas ingin bahas topik lain
+            "none",
+            "weak",
+            "clear"
         ]),
 
         drift_detected: z.boolean(),

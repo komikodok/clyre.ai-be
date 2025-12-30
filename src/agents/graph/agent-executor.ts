@@ -1,8 +1,8 @@
 import { StateGraph, END, START, Annotation } from '@langchain/langgraph'
 import { BaseMessage } from '@langchain/core/messages'
-import { agentNode, toolNode } from './nodes'
+import { agentNode, toolNode, executeToolOrReturn } from './nodes'
+import { ToolCall } from 'langchain';
 
-// Define the state using Annotation
 export const AgentState = Annotation.Root({
     input: Annotation<string>,
     topic: Annotation<string>({
@@ -17,40 +17,30 @@ export const AgentState = Annotation.Root({
         reducer: (x, y) => y ?? x,
         default: () => ""
     }),
-    tool_calls: Annotation<{ name: string, args: Record<string, any>, id?: string } | undefined>({
+    tool_calls: Annotation<ToolCall[]>({
         reducer: (x, y) => y ?? x,
-        default: () => undefined
+        default: () => []
     }),
-    tool_result: Annotation<Record<string, any> | undefined>({
+    tool_result: Annotation<any[]>({
         reducer: (x, y) => y ?? x,
-        default: () => undefined
+        default: () => []
     })
 });
 
-// Export the type for use in nodes
 export type AgentExecutorState = typeof AgentState.State;
 
-// Conditional Edge Logic
-const shouldContinue = (state: AgentExecutorState) => {
-    if (state.tool_calls) {
-        return "toolNode";
-    }
-    return END;
-};
-
-// Build the Graph
 const workflow = new StateGraph(AgentState)
     .addNode("agentNode", agentNode)
     .addNode("toolNode", toolNode)
     .addEdge(START, "agentNode")
     .addConditionalEdges(
         "agentNode",
-        shouldContinue,
+        executeToolOrReturn,
         {
             toolNode: "toolNode",
             [END]: END
         }
     )
-    .addEdge("toolNode", "agentNode");
+    .addEdge("toolNode", END);
 
 export const agentExecutor = workflow.compile();
