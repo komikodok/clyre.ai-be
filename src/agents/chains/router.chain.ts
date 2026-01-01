@@ -1,3 +1,4 @@
+import { initialTopicTool } from "../tools/initial-topic.tool";
 import { createChain } from "../utils/chain-factory";
 
 const routerPrompt = `
@@ -10,4 +11,4 @@ const routerPrompt = `
     You MUST call the tool with the correct arguments.
 `;
 
-export const routerChain = createChain(routerPrompt, 0.2);
+export const routerChain = createChain(routerPrompt, 0.2, [initialTopicTool]);

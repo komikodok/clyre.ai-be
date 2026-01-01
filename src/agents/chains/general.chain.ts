@@ -1,6 +1,8 @@
 import { createChain } from "../utils/chain-factory";
 
 const systemPrompt = `
+    CURRENT TOPIC: general
+
     You are a general-purpose assistant for casual conversation and light consultation.
 
     You may:

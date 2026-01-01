@@ -4,8 +4,12 @@ interface TopicAction {
     message?: string
 }
 
-export type UXAction = TopicAction | undefined
-// | ConfirmSwitchTopicAction
+interface FollowupQuestion {
+    type: 'FOLLOWUP_QUESTION'
+    question: string[]
+}
+
+export type UXAction = TopicAction | FollowupQuestion | undefined
 
 export interface AgentResponse {
     data: {

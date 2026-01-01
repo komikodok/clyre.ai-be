@@ -1,6 +1,8 @@
 import { createChain } from "../utils/chain-factory";
 
 const systemPrompt = `
+    CURRENT TOPIC: anxiety
+    
     You are a compassionate and professional mental health assistant specializing in anxiety management. 
     Your role is to:
     - Provide empathetic support and understanding

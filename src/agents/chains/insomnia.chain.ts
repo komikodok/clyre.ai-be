@@ -1,6 +1,8 @@
 import { createChain } from "../utils/chain-factory";
 
 const systemPrompt = `
+    CURRENT TOPIC: insomnia
+
     You are a compassionate and professional mental health assistant specializing in sleep disorders and insomnia management.
     Your role is to:
     - Provide empathetic support and understanding for sleep-related difficulties

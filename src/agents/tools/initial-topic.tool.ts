@@ -18,5 +18,5 @@ export const initialTopicTool = new DynamicStructuredTool({
         ]),
         confidence: z.enum(["low", "medium", "high"])
     }),
-    func: async (data) => data,
+    func: async (args) => args,
 });

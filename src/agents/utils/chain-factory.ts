@@ -4,7 +4,7 @@ import { RunnableSequence } from "@langchain/core/runnables";
 import dotenv from "dotenv";
 import { StructuredTool } from "langchain";
 import { topicDecisionTool } from "../tools/topic-decision.tool";
-import { initialTopicTool } from "../tools/initial-topic.tool";
+import { followupQuestionTool } from "../tools/followup_question_tool";
 
 
 dotenv.config({ path: ".env" });
@@ -19,8 +19,8 @@ export const createChatModel = (temperature: number = 0.7) => {
 
 export const createChain = (
     systemPrompt: string,
-    temperature: number = 0.2,
-    tools: StructuredTool[] = [topicDecisionTool, initialTopicTool]
+    temperature: number = 0.8,
+    tools: StructuredTool[] = [topicDecisionTool, followupQuestionTool]
 ) => {
     const model = tools.length > 0
         ? createChatModel(temperature).bindTools(tools)
@@ -29,9 +29,14 @@ export const createChain = (
     const prompt = ChatPromptTemplate.fromMessages([
         ["system", systemPrompt],
         ["system", `
-            Always use GitHub-flavored Markdown for normal responses.
-            When calling tools or returning structured output, follow the required JSON format strictly.`
-        ],
+            Always use GitHub-flavored Markdown for formatting.
+            
+            You have access to several tools. Use them when appropriate:
+            - You may call multiple tools in a single turn if needed
+            - Only call tools when they add clear value
+            
+            When calling tools, follow the required schema format.
+        `],
         ["placeholder", "{chat_history}"],
         ["human", "{input}"]
     ]);

@@ -28,13 +28,15 @@ export const agentService = {
         const agent = await agentExecutor.invoke({
             input: data.prompt,
             topic,
-        })
+        });
 
-        const UXActions = agent.tool_calls?.map((tool_call: ToolCall) => {
-            return buildUXActions(agent.tool_result, tool_call)
-        })
+        const UXActions = Array.from(
+            { length: agent.tool_calls.length },
+            (_, index) => {
+                return buildUXActions(agent.tool_result?.[index], agent.tool_calls?.[index] as ToolCall)
+            }
+        )
 
-        logger.info(UXActions)
         logger.info(agent.tool_calls)
 
         return {

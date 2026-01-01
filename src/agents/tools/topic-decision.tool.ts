@@ -13,6 +13,13 @@ export const topicDecisionTool = new DynamicStructuredTool({
         Do NOT force topic switching.
     `,
     schema: z.object({
+        current_topic: z.enum([
+            "general",
+            "anxiety",
+            "insomnia",
+            "burnout",
+        ]),
+
         suggested_topic: z.enum([
             "general",
             "anxiety",
@@ -36,6 +43,6 @@ export const topicDecisionTool = new DynamicStructuredTool({
             ),
     }),
 
-    func: async (data) => data,
+    func: async (args) => args,
 });
 
