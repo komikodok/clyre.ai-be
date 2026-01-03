@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { agentService } from "../services/agent.service";
 import { successResponse } from "../utils/response";
+import { logger } from "../utils/logging";
 
 class AgentController {
     static async new(req: Request, res: Response, next: NextFunction) {
