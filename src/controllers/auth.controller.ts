@@ -19,8 +19,6 @@ class AuthController {
   static async login(req: Request, res: Response, next: NextFunction) {
     const data = await authService.login(req.body);
 
-    logger.info(`Data user: ${data}`);
-
     successResponse(res, StatusCodes.OK, "Login successful.", data);
   }
 }

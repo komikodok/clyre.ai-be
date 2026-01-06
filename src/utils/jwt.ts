@@ -1,7 +1,7 @@
-import 'dotenv/config';
-import jwt from 'jsonwebtoken';
+import "dotenv/config";
+import jwt from "jsonwebtoken";
 
-const SECRET = process.env.JWT_SECRET_KEY as string
+const SECRET = process.env.JWT_SECRET_KEY as string;
 
 interface IPayload {
   id: string;
@@ -10,7 +10,7 @@ interface IPayload {
 
 export default {
   sign: (payload: IPayload) =>
-    jwt.sign(payload, SECRET, { expiresIn: '1h', algorithm: 'HS256' }),
+    jwt.sign(payload, SECRET, { expiresIn: "1h", algorithm: "HS256" }),
 
   verify: (token: string) => jwt.verify(token, SECRET),
 };
