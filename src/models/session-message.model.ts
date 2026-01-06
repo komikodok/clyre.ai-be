@@ -16,9 +16,10 @@ const sessionMessageSchema = new Schema<ISessionMessageDocument>(
       type: String,
       default: "",
     },
-    topic: {
-      type: String,
-      default: "",
+    topic_id: {
+      type: Schema.Types.ObjectId,
+      ref: "Topic",
+      required: false,
     },
   },
   {

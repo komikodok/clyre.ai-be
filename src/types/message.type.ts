@@ -6,7 +6,7 @@ export interface ISessionMessage {
   id?: string;
   user_id?: string | Types.ObjectId;
   title?: string;
-  topic?: string;
+  topic_id?: string | Types.ObjectId;
   created_at?: Date;
   updated_at?: Date;
 }
