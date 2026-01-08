@@ -6,13 +6,13 @@ import { topicSchema } from "../validation/topic.schema";
 import validate from "../validation/validation";
 
 const topicServices = {
-  getAll: async (): Promise<ITopicDocument[]> => {
-    const topics = await Topic.find({});
+  getAll: async () => {
+    const topics = await Topic.find({}, "name");
 
-    return topics;
+    return { data: topics };
   },
 
-  create: async (data: ITopic): Promise<ITopicDocument> => {
+  create: async (data: ITopic) => {
     const value = validate(topicSchema, data);
 
     const existingTopic = await Topic.findOne({ name: value.name });
@@ -20,16 +20,16 @@ const topicServices = {
       throw new ResponseError("Topic already exists", StatusCodes.CONFLICT);
     }
     const topic = await Topic.create(value);
-    return topic;
+    return { data: topic.toJSON() };
   },
 
-  delete: async (id: string): Promise<ITopicDocument | null> => {
+  delete: async (id: string) => {
     const topic = await Topic.findByIdAndDelete(id);
     if (!topic) {
       throw new ResponseError("Topic not found", StatusCodes.NOT_FOUND);
     }
 
-    return topic;
+    return { data: null };
   },
 };
 

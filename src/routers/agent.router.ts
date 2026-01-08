@@ -4,14 +4,12 @@ import AgentController from "../controllers/agent.controller";
 import rescue from "express-rescue";
 
 import docsRouter from "./docs.router";
-import topicRouter from "./topic.router";
 
 const agentRouter = Router();
 
-// agentRouter.use(authMiddleware)
+agentRouter.use(authMiddleware);
 agentRouter.post("/new", rescue(AgentController.new));
 agentRouter.post("/consult/:topic", rescue(AgentController.consult));
-agentRouter.use("/topic", topicRouter);
 agentRouter.use("/docs/:topic", docsRouter);
 
 export default agentRouter;

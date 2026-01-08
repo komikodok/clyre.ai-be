@@ -10,10 +10,6 @@ const topicSchema = new Schema<ITopicDocument>(
       required: true,
       unique: true,
     },
-    icon: {
-      type: String,
-      default: "",
-    },
   },
   {
     timestamps: { createdAt: "created_at", updatedAt: "updated_at" },

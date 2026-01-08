@@ -17,6 +17,7 @@ export interface IChatMessage {
   role: MessageRole;
   content: string;
   is_liked?: boolean;
+  is_disliked?: boolean;
   created_at?: Date;
   updated_at?: Date;
 }
