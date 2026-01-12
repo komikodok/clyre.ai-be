@@ -10,6 +10,7 @@ const agentRouter = Router();
 agentRouter.use(authMiddleware);
 agentRouter.post("/new", rescue(AgentController.new));
 agentRouter.post("/consult/:topic", rescue(AgentController.consult));
+agentRouter.post("/stream/:topic", rescue(AgentController.stream));
 agentRouter.use("/docs/:topic", docsRouter);
 
 export default agentRouter;

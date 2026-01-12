@@ -14,7 +14,7 @@ const chatMessageSchema = new Schema<IChatMessageDocument>(
     },
     role: {
       type: String,
-      enum: ["user", "assistant", "system"],
+      enum: ["user", "assistant", "tool"],
       required: true,
     },
     content: {
@@ -23,11 +23,21 @@ const chatMessageSchema = new Schema<IChatMessageDocument>(
     },
     is_liked: {
       type: Boolean,
-      default: false,
+      required: false,
     },
     is_disliked: {
       type: Boolean,
-      default: false,
+      required: false,
+    },
+    tool_calls: {
+      type: Array,
+      default: [],
+      required: false,
+    },
+    tool_call_id: {
+      type: String,
+      default: null,
+      required: false,
     },
   },
   {
@@ -42,6 +52,8 @@ const chatMessageSchema = new Schema<IChatMessageDocument>(
     },
   }
 );
+
+chatMessageSchema.index({ session_id: 1, created_at: 1 });
 
 const ChatMessage = mongoose.model<IChatMessageDocument>(
   "ChatMessage",

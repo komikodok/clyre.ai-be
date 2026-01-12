@@ -35,6 +35,8 @@ const sessionMessageSchema = new Schema<ISessionMessageDocument>(
   }
 );
 
+sessionMessageSchema.index({ user_id: 1, topic_id: 1 }, { unique: true });
+
 const SessionMessage = mongoose.model<ISessionMessageDocument>(
   "SessionMessage",
   sessionMessageSchema,

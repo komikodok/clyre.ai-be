@@ -1,19 +1,21 @@
-import { AIMessage, HumanMessage, ToolCall } from "langchain";
+import { ToolCall } from "langchain";
 import { routerChain } from "../agents/chains/router.chain";
 import { toolExecutor } from "../agents/utils/tool-executor";
 import { logger } from "../utils/logging";
-import { agentExecutor } from "../agents/graph/agent-executor";
 import { buildUXActions } from "../utils/ux-actions";
+import { streamAgent } from "../agents/utils/stream-agent";
+import ChatMessageRepository from "../repositories/chat-message.repository";
+import { agentExecutor } from "../agents/graph/agent-executor";
 
-export const agentService = {
-  new: async (prompt: string) => {
+class AgentService {
+  async new(prompt: string) {
     const chain = await routerChain.invoke({ input: prompt });
 
     const toolResults = await toolExecutor(chain.tool_calls as ToolCall[]);
 
     const UXAction = buildUXActions(
-      toolResults[0],
-      chain.tool_calls?.[0] as ToolCall
+      toolResults,
+      chain.tool_calls as ToolCall[]
     );
 
     logger.info(UXAction);
@@ -21,33 +23,72 @@ export const agentService = {
 
     return {
       data: {
-        ux_action: [UXAction],
+        ux_action: UXAction,
       },
     };
-  },
-  consult: async (topic: string, data: { prompt: string }) => {
+  }
+
+  async consult(
+    params: { topic: string },
+    data: { prompt: string; user_id: string }
+  ) {
     const agent = await agentExecutor.invoke({
       input: data.prompt,
-      topic,
+      topic: params.topic,
     });
 
-    const UXActions = Array.from(
-      { length: agent.tool_calls.length },
-      (_, index) => {
-        return buildUXActions(
-          agent.tool_result?.[index],
-          agent.tool_calls?.[index] as ToolCall
-        );
-      }
+    const UXActions = buildUXActions(
+      agent.tool_result,
+      agent.tool_calls as ToolCall[]
     );
-
-    logger.info(agent.tool_calls);
 
     return {
       data: {
         ai_message: agent?.result,
-        ux_action: [...UXActions],
+        ux_actions: UXActions,
       },
     };
-  },
-};
+  }
+
+  async *stream(
+    params: { topic: string },
+    data: { prompt: string; user_id: string }
+  ) {
+    const { chatHistory, sessionId } =
+      await ChatMessageRepository.getChatHistory(params.topic, data.user_id);
+
+    const agent = streamAgent({
+      input: data.prompt,
+      topic: params.topic,
+      chat_history: chatHistory,
+    });
+
+    for await (const event of agent) {
+      switch (event.type) {
+        case "token":
+          yield {
+            type: "token",
+            value: event.value,
+          };
+          break;
+        case "__end__":
+          const { data, ux_actions } = event.value;
+          const toolCalls = data.tool_calls;
+          const toolResult = data.tool_result;
+
+          yield {
+            type: "__end__",
+            value: {
+              ai_message: data.result,
+              ux_actions,
+            },
+          };
+          break;
+        default:
+          break;
+      }
+    }
+  }
+}
+
+export const agentService = new AgentService();

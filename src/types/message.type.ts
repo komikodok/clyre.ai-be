@@ -1,6 +1,7 @@
+import { ToolCall } from "langchain";
 import { Types } from "mongoose";
 
-export type MessageRole = "user" | "assistant" | "system";
+export type MessageRole = "user" | "assistant" | "tool";
 
 export interface ISessionMessage {
   id?: string;
@@ -18,6 +19,8 @@ export interface IChatMessage {
   content: string;
   is_liked?: boolean;
   is_disliked?: boolean;
+  tool_calls?: ToolCall[];
+  tool_call_id?: string;
   created_at?: Date;
   updated_at?: Date;
 }

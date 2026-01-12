@@ -13,12 +13,13 @@ export const createChatModel = (temperature: number = 0.7) => {
     apiKey: process.env.GROQ_API_KEY,
     model: process.env.MODEL_NAME || "llama-3.3-70b-versatile",
     temperature,
+    streaming: true,
   });
 };
 
 export const createChain = (
   systemPrompt: string,
-  temperature: number = 0.8,
+  temperature: number = 0.7,
   tools: StructuredTool[] = [switchTopicTool, followupQuestionTool]
 ) => {
   const model =
@@ -31,9 +32,6 @@ export const createChain = (
     [
       "system",
       `
-          Before responding, detect the user's language.
-          All outputs must match that language exactly.
-      
           Always use GitHub-flavored Markdown for formatting.
           
           You have access to several tools. Use them when appropriate:
@@ -41,6 +39,11 @@ export const createChain = (
           - Only call tools when they add clear value
           
           When calling tools, follow the required schema format.
+
+          Always respond in the same language as the user's most recent message.
+          Never mention language detection, translation, or reasoning.
+          If the user switches language, follow the new language immediately.
+          IMPORTANT: Always respond in the same language as the user's input.
         `,
     ],
     ["placeholder", "{chat_history}"],
