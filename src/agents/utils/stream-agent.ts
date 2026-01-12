@@ -2,7 +2,6 @@ import { BaseMessage, BaseMessageChunk } from "langchain";
 import { agentExecutor } from "../graph/agent-executor";
 import { buildUXActions } from "../../utils/ux-actions";
 import { ToolCall } from "langchain";
-import { logger } from "../../utils/logging";
 
 export const streamAgent = async function* (input: {
   input: string;

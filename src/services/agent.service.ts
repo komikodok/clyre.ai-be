@@ -18,9 +18,6 @@ class AgentService {
       chain.tool_calls as ToolCall[]
     );
 
-    logger.info(UXAction);
-    logger.info(chain.tool_calls);
-
     return {
       data: {
         ux_action: UXAction,
