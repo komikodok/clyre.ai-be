@@ -9,6 +9,6 @@ const router = Router();
 router.use("/auth", authRouter);
 router.use("/users", userRouter);
 router.use("/agents", agentRouter);
-router.use("/topic", topicRouter);
+router.use("/topics", topicRouter);
 
 export default router;

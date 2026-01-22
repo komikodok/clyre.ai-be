@@ -13,30 +13,34 @@ class AgentService {
 
     const toolResults = await toolExecutor(chain.tool_calls as ToolCall[]);
 
-    const UXAction = buildUXActions(
+    const UXActionsde = buildUXActions(
       toolResults,
-      chain.tool_calls as ToolCall[]
+      chain.tool_calls as ToolCall[],
     );
 
     return {
       data: {
-        ux_action: UXAction,
+        ux_actions: UXActionsde,
       },
     };
   }
 
   async consult(
     params: { topic: string },
-    data: { prompt: string; user_id: string }
+    data: { prompt: string; user_id: string },
   ) {
+    const { chatHistory, sessionId } =
+      await ChatMessageRepository.getChatHistory(params.topic, data.user_id);
+
     const agent = await agentExecutor.invoke({
       input: data.prompt,
       topic: params.topic,
+      chat_history: chatHistory,
     });
 
     const UXActions = buildUXActions(
       agent.tool_result,
-      agent.tool_calls as ToolCall[]
+      agent.tool_calls as ToolCall[],
     );
 
     return {
@@ -49,16 +53,20 @@ class AgentService {
 
   async *stream(
     params: { topic: string },
-    data: { prompt: string; user_id: string }
+    data: { prompt: string; user_id: string },
+    signal?: AbortSignal,
   ) {
     const { chatHistory, sessionId } =
       await ChatMessageRepository.getChatHistory(params.topic, data.user_id);
 
-    const agent = streamAgent({
-      input: data.prompt,
-      topic: params.topic,
-      chat_history: chatHistory,
-    });
+    const agent = streamAgent(
+      {
+        input: data.prompt,
+        topic: params.topic,
+        chat_history: chatHistory,
+      },
+      signal,
+    );
 
     for await (const event of agent) {
       switch (event.type) {
@@ -70,8 +78,6 @@ class AgentService {
           break;
         case "__end__":
           const { data, ux_actions } = event.value;
-          const toolCalls = data.tool_calls;
-          const toolResult = data.tool_result;
 
           yield {
             type: "__end__",

@@ -23,12 +23,12 @@ export const buildUXActions = (tool_results: any, tool_calls: ToolCall[]) => {
         ];
         break;
 
-      case "followup_question_tool":
+      case "followup_suggestion_tool":
         ux_action = [
           ...ux_action,
           {
-            type: "FOLLOWUP_QUESTION",
-            question: tool_results?.[index].question,
+            type: "FOLLOWUP_SUGGESTION",
+            suggestions: tool_results?.[index].suggestions,
           },
         ];
         break;

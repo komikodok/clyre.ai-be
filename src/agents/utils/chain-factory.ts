@@ -4,7 +4,7 @@ import { RunnableSequence } from "@langchain/core/runnables";
 import dotenv from "dotenv";
 import { StructuredTool } from "langchain";
 import { switchTopicTool } from "../tools/switch-topic-tool";
-import { followupQuestionTool } from "../tools/followup_question_tool";
+import { followupSuggestionTool } from "../tools/followup_suggestion_tool";
 
 dotenv.config({ path: ".env" });
 
@@ -20,7 +20,7 @@ export const createChatModel = (temperature: number = 0.7) => {
 export const createChain = (
   systemPrompt: string,
   temperature: number = 0.7,
-  tools: StructuredTool[] = [switchTopicTool, followupQuestionTool]
+  tools: StructuredTool[] = [switchTopicTool, followupSuggestionTool]
 ) => {
   const model =
     tools.length > 0
@@ -35,6 +35,7 @@ export const createChain = (
           Always use GitHub-flavored Markdown for formatting.
           
           You have access to several tools. Use them when appropriate:
+          - ALWAYS write a complete, helpful natural language response to the user FIRST.
           - You may call multiple tools in a single turn if needed
           - Only call tools when they add clear value
           

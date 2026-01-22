@@ -3,14 +3,20 @@ import { agentExecutor } from "../graph/agent-executor";
 import { buildUXActions } from "../../utils/ux-actions";
 import { ToolCall } from "langchain";
 
-export const streamAgent = async function* (input: {
-  input: string;
-  topic: string;
-  chat_history?: BaseMessage[] | BaseMessageChunk[];
-}) {
-  const stream = agentExecutor.streamEvents(input, { version: "v2" });
+export const streamAgent = async function* (
+  input: {
+    input: string;
+    topic: string;
+    chat_history?: (BaseMessage | BaseMessageChunk)[];
+  },
+  signal?: AbortSignal
+) {
+  const stream = agentExecutor.streamEvents(input, { version: "v2", signal });
 
   for await (const s of stream) {
+    if (signal?.aborted) {
+      break;
+    }
     if (s.event === "on_chat_model_stream") {
       const content = s.data?.chunk.content; // stream token <string>
 

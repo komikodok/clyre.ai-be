@@ -4,9 +4,9 @@ interface TopicAction {
   message?: string;
 }
 
-interface FollowupQuestion {
-  type: "FOLLOWUP_QUESTION";
-  question: string[];
+interface FollowupSuggestion {
+  type: "FOLLOWUP_SUGGESTION";
+  suggestions: string[];
 }
 
-export type UXAction = TopicAction | FollowupQuestion | undefined;
+export type UXAction = TopicAction | FollowupSuggestion | undefined;

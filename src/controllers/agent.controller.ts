@@ -25,6 +25,14 @@ class AgentController {
     const { topic } = req.params;
     const { prompt, user_id } = req.body;
 
+    const abortController = new AbortController();
+    const signal = abortController.signal;
+
+    res.on("close", () => {
+      logger.info("Client disconnected");
+      abortController.abort();
+    });
+
     try {
       req.setTimeout(200000);
       res.setTimeout(200000);
@@ -34,7 +42,11 @@ class AgentController {
       res.setHeader("Connection", "keep-alive");
       res.flushHeaders();
 
-      const result = agentService.stream({ topic }, { prompt, user_id });
+      const result = agentService.stream(
+        { topic },
+        { prompt, user_id },
+        signal,
+      );
 
       for await (const event of result) {
         res.write(`event: ${event.type}\n`);

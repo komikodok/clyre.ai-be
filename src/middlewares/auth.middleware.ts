@@ -19,7 +19,7 @@ export default (req: Request, res: Response, next: NextFunction) => {
       res,
       StatusCodes.UNAUTHORIZED,
       "Unauthorized",
-      "No token provided."
+      "No token provided.",
     );
 
   try {
@@ -34,7 +34,7 @@ export default (req: Request, res: Response, next: NextFunction) => {
       res,
       StatusCodes.UNAUTHORIZED,
       "Unauthorized",
-      "No token provided."
+      "No token provided.",
     );
   }
 };
