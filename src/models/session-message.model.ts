@@ -2,8 +2,7 @@ import mongoose, { Schema, Document } from "mongoose";
 import { ISessionMessage } from "../types/message.type";
 
 export interface ISessionMessageDocument
-  extends Omit<ISessionMessage, "id">,
-    Document {}
+  extends Omit<ISessionMessage, "id">, Document {}
 
 const sessionMessageSchema = new Schema<ISessionMessageDocument>(
   {
@@ -21,6 +20,11 @@ const sessionMessageSchema = new Schema<ISessionMessageDocument>(
       ref: "Topic",
       required: false,
     },
+    limit_session: {
+      type: Number,
+      default: 50,
+      min: 0,
+    },
   },
   {
     timestamps: { createdAt: "created_at", updatedAt: "updated_at" },
@@ -32,7 +36,7 @@ const sessionMessageSchema = new Schema<ISessionMessageDocument>(
         return ret;
       },
     },
-  }
+  },
 );
 
 sessionMessageSchema.index({ user_id: 1, topic_id: 1 }, { unique: true });
@@ -40,7 +44,7 @@ sessionMessageSchema.index({ user_id: 1, topic_id: 1 }, { unique: true });
 const SessionMessage = mongoose.model<ISessionMessageDocument>(
   "SessionMessage",
   sessionMessageSchema,
-  "session_messages"
+  "session_messages",
 );
 
 export default SessionMessage;

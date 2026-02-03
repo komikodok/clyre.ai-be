@@ -2,7 +2,6 @@ import { MongoDBAtlasVectorSearch } from "@langchain/mongodb";
 import { HuggingFaceInferenceEmbeddings } from "@langchain/community/embeddings/hf";
 import { Document } from "@langchain/core/documents";
 import mongoose from "mongoose";
-import { DocsResponse } from "../types/docs.type";
 import {
   extractPdfDocuments,
   extractUrlDocuments,
@@ -14,10 +13,16 @@ export const docsService = {
   addDocument: async (
     topic: string,
     type: "file" | "url",
-    data: { file?: Express.Multer.File; url?: string }
+    data: {
+      file?: Express.Multer.File;
+      url?: string;
+      title?: string;
+      cloudinaryPublicId?: string;
+    },
   ) => {
     let docs: Document[] = [];
     let source = "";
+    const title = data.title?.trim();
 
     if (type === "file" && data.file) {
       if (data.file.mimetype === "application/pdf") {
@@ -40,7 +45,9 @@ export const docsService = {
         source,
         type,
         topic,
-        createdAt: new Date().toISOString(),
+        title,
+        cloudinary_public_id: data.cloudinaryPublicId,
+        created_at: new Date().toISOString(),
       };
     });
 

@@ -79,6 +79,8 @@ class AgentService {
         case "__end__":
           const { data, ux_actions } = event.value;
 
+          console.log(ux_actions);
+
           yield {
             type: "__end__",
             value: {

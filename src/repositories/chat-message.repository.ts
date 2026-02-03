@@ -1,4 +1,3 @@
-import mongoose, { Types } from "mongoose";
 import ChatMessage from "../models/chat-message.model";
 import SessionMessage from "../models/session-message.model";
 import Topic from "../models/topic.model";
@@ -8,33 +7,12 @@ import {
   HumanMessage,
   ToolMessage,
 } from "@langchain/core/messages";
-import { IChatMessage } from "../types/message.type";
 import ResponseError from "../utils/error";
 import { StatusCodes } from "http-status-codes";
-import { AgentExecutorState } from "../agents/graph/agent-executor";
 
 class ChatMessageRepository {
-  static async getChatHistory(
-    topic: string,
-    user_id: string,
-    limit: number = 20
-  ) {
-    const topicDoc = await Topic.findOne({ name: topic });
-    if (!topicDoc) {
-      throw new ResponseError("Topic not found", StatusCodes.NOT_FOUND);
-    }
-
-    const session = await SessionMessage.findOneAndUpdate(
-      { user_id: user_id, topic_id: topicDoc._id },
-      { $setOnInsert: { user_id: user_id, topic_id: topicDoc._id } },
-      { upsert: true, new: true }
-    );
-
-    const messages = await ChatMessage.find({ session_id: session._id })
-      .sort({ created_at: 1 })
-      .limit(limit);
-
-    const chatHistory = messages.flatMap((msg): BaseMessage[] => {
+  private static mapToBaseMessages(messages: any[]): BaseMessage[] {
+    return messages.flatMap((msg): BaseMessage[] => {
       switch (msg.role) {
         case "user":
           return [new HumanMessage({ content: msg.content })];
@@ -56,7 +34,35 @@ class ChatMessageRepository {
           return [];
       }
     });
-    return { chatHistory, sessionId: session._id };
+  }
+
+  static async getChatHistory(
+    topic: string,
+    user_id: string,
+    limit: number = 20,
+  ) {
+    const topicDoc = await Topic.findOne({ name: topic });
+    if (!topicDoc) {
+      throw new ResponseError("Topic not found", StatusCodes.NOT_FOUND);
+    }
+
+    const session = await SessionMessage.findOneAndUpdate(
+      { user_id: user_id, topic_id: topicDoc._id },
+      { $setOnInsert: { user_id: user_id, topic_id: topicDoc._id } },
+      { upsert: true, new: true },
+    );
+
+    const messages = await ChatMessage.find({ session_id: session._id })
+      .sort({ created_at: 1 })
+      .limit(limit);
+
+    const chatHistory = this.mapToBaseMessages(messages);
+
+    return {
+      chatHistory,
+      sessionId: session._id,
+      rawMessages: messages,
+    };
   }
 }
 

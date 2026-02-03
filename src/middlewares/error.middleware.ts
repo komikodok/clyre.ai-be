@@ -1,35 +1,41 @@
-import { NextFunction, Request, Response } from 'express';
-import { StatusCodes } from 'http-status-codes';
-import ResponseError from '../utils/error';
-import { errorResponse } from '../utils/response';
-import { ZodError } from 'zod';
-import { logger } from '../utils/logging';
+import { NextFunction, Request, Response } from "express";
+import { StatusCodes } from "http-status-codes";
+import ResponseError from "../utils/error";
+import { errorResponse } from "../utils/response";
+import { ZodError } from "zod";
+import { logger } from "../utils/logging";
 
-const errorMiddleware = (err: any, _req: Request, res: Response, _next: NextFunction) => {
+export const errorMiddleware = (
+  err: any,
+  _req: Request,
+  res: Response,
+  _next: NextFunction,
+) => {
   switch (true) {
     case err instanceof ResponseError:
-      return errorResponse(res, err.code, err.message, err.message)
+      return errorResponse(res, err.code, err.message, err.message);
     case err instanceof ZodError:
-      const issues = err.issues
+      const issues = err.issues;
       return errorResponse(
         res,
         StatusCodes.BAD_REQUEST,
         err.message,
         issues.map((issue) => ({
           path: issue.path,
-          message: issue.message
-        }))
-      )
+          message: issue.message,
+        })),
+      );
     default:
-      logger.error('Unhandled error:', {
+      logger.error("Unhandled error:", {
         message: err?.message,
         stack: err?.stack,
-        error: err
-      })
-      return errorResponse(res, StatusCodes.INTERNAL_SERVER_ERROR, 'Something went wrong', null)
+        error: err,
+      });
+      return errorResponse(
+        res,
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        "Something went wrong",
+        null,
+      );
   }
-}
-
-export {
-  errorMiddleware
-}
+};

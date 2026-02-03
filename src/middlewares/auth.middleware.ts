@@ -3,6 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import jwt from "../utils/jwt";
 import { JwtPayload } from "jsonwebtoken";
 import { errorResponse } from "../utils/response";
+import ResponseError from "../utils/error";
 
 export interface AuthRequest extends Request {
   user: {
@@ -15,11 +16,9 @@ export default (req: Request, res: Response, next: NextFunction) => {
   const token = req.headers.authorization?.split(" ")[1];
 
   if (!token)
-    return errorResponse(
-      res,
+    throw new ResponseError(
+      "Unauthorized: You must be logged in.",
       StatusCodes.UNAUTHORIZED,
-      "Unauthorized",
-      "No token provided.",
     );
 
   try {
@@ -30,11 +29,9 @@ export default (req: Request, res: Response, next: NextFunction) => {
     (req as AuthRequest).user = user;
     return next();
   } catch {
-    return errorResponse(
-      res,
+    throw new ResponseError(
+      "Unauthorized: You must be logged in.",
       StatusCodes.UNAUTHORIZED,
-      "Unauthorized",
-      "No token provided.",
     );
   }
 };

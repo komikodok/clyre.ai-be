@@ -20,7 +20,7 @@ export const createChatModel = (temperature: number = 0.7) => {
 export const createChain = (
   systemPrompt: string,
   temperature: number = 0.7,
-  tools: StructuredTool[] = [switchTopicTool, followupSuggestionTool]
+  tools: StructuredTool[] = [switchTopicTool, followupSuggestionTool],
 ) => {
   const model =
     tools.length > 0
@@ -32,7 +32,7 @@ export const createChain = (
     [
       "system",
       `
-          Always use GitHub-flavored Markdown for formatting.
+          IMPORTANT: Always use GitHub-flavored Markdown for formatting.
           
           You have access to several tools. Use them when appropriate:
           - ALWAYS write a complete, helpful natural language response to the user FIRST.
@@ -45,6 +45,12 @@ export const createChain = (
           Never mention language detection, translation, or reasoning.
           If the user switches language, follow the new language immediately.
           IMPORTANT: Always respond in the same language as the user's input.
+
+          IMPORTANT:
+          - Ground responses in retrieved knowledge when available.
+          - Do NOT hallucinate medical facts or diagnoses.
+          - If information is uncertain or missing, respond conservatively.
+
         `,
     ],
     ["placeholder", "{chat_history}"],

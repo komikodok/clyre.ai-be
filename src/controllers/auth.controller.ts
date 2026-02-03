@@ -12,7 +12,7 @@ class AuthController {
       res,
       StatusCodes.CREATED,
       "User registered successfully.",
-      null
+      null,
     );
   }
 

@@ -11,7 +11,7 @@ class TopicController {
       res,
       StatusCodes.CREATED,
       "Topic created successfully",
-      result
+      result,
     );
   }
 
@@ -22,7 +22,7 @@ class TopicController {
       res,
       StatusCodes.OK,
       "Topics retrieved successfully",
-      result
+      result,
     );
   }
 

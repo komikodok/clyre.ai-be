@@ -55,7 +55,7 @@ class AgentController {
 
       res.end();
     } catch (error: any) {
-      logger.error("Error in consult:", error);
+      logger.error("Error on stream:", error);
 
       if (!res.headersSent) {
         res.setHeader("Content-Type", "text/event-stream");

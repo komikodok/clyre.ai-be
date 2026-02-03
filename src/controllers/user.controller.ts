@@ -18,7 +18,7 @@ class UserController {
   static async getUserDetail(
     req: AuthRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) {
     const payload = req.user;
 

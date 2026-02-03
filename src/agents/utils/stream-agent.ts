@@ -9,7 +9,7 @@ export const streamAgent = async function* (
     topic: string;
     chat_history?: (BaseMessage | BaseMessageChunk)[];
   },
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ) {
   const stream = agentExecutor.streamEvents(input, { version: "v2", signal });
 
@@ -33,7 +33,7 @@ export const streamAgent = async function* (
 
       const UXActions = buildUXActions(
         result.tool_result,
-        result.tool_calls as ToolCall[]
+        result.tool_calls as ToolCall[],
       );
 
       yield {

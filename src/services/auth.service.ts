@@ -32,7 +32,7 @@ const authService = {
     const loginDataValidate = validate(loginSchema, data);
 
     const user = await User.findOne({ email: loginDataValidate.email }).select(
-      "+password"
+      "+password",
     );
     if (!user) {
       throw new ResponseError("User not found", 404);
@@ -40,7 +40,7 @@ const authService = {
 
     const isValidPassword = await bcrypt.compare(
       loginDataValidate.password,
-      user.password as string
+      user.password as string,
     );
     if (!isValidPassword) {
       throw new ResponseError("Invalid email or password", 401);
