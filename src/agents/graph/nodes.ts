@@ -4,15 +4,60 @@ import { AgentExecutorState } from "./agent-executor";
 import { HumanMessage, ToolMessage } from "@langchain/core/messages";
 import { toolExecutor } from "../utils/tool-executor";
 import { logger } from "../../utils/logging";
+import { MongoDBAtlasVectorSearch } from "@langchain/mongodb";
+import { createEmbeddings } from "../utils/chain-factory";
+import mongoose from "mongoose";
+
+export const retrieveDocsNode = async (state: AgentExecutorState) => {
+  const { topic, input } = state;
+
+  try {
+    if (!topic || topic === "general") {
+      return { retrieved_context: "" };
+    }
+
+    if (!mongoose.connection.db) {
+      throw new Error("Database connection not established");
+    }
+
+    const collectionName = `${topic}_docs`;
+    const collection = mongoose.connection.db.collection(collectionName) as any;
+
+    const embeddings = await createEmbeddings();
+
+    const vectorStore = new MongoDBAtlasVectorSearch(embeddings, {
+      collection,
+      indexName: "default",
+      textKey: "text",
+      embeddingKey: "embedding",
+    });
+
+    const results = await vectorStore.similaritySearch(input, 2);
+    const retrievedContext = results
+      .map((doc) => doc.pageContent)
+      .filter(Boolean)
+      .join("\n\n");
+
+    return {
+      retrieved_context: retrievedContext,
+    };
+  } catch (err) {
+    logger.error("Error retrieving documents", err);
+    throw new Error("Failed to retrieve documents");
+  }
+};
 
 export const agentNode = async (state: AgentExecutorState) => {
-  const { topic, input, chat_history } = state;
+  const { topic, input, chat_history, retrieved_context } = state;
 
   const activeChain = chains[topic as keyof typeof chains] || chains["general"];
 
-  const human_msg = new HumanMessage({ content: input });
+  const contextualInput = retrieved_context
+    ? `Context:\n${retrieved_context}\n\nUser: ${input}`
+    : input;
+  const human_msg = new HumanMessage({ content: contextualInput });
   const ai_msg = await activeChain.invoke({
-    input,
+    input: contextualInput,
     chat_history: chat_history,
   });
 

@@ -1,12 +1,51 @@
 import { ChatGroq } from "@langchain/groq";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { RunnableSequence } from "@langchain/core/runnables";
+import { Embeddings } from "@langchain/core/embeddings";
 import dotenv from "dotenv";
-import { StructuredTool } from "langchain";
 import { switchTopicTool } from "../tools/switch-topic-tool";
 import { followupSuggestionTool } from "../tools/followup_suggestion_tool";
+import {
+  pipeline,
+  type FeatureExtractionPipeline,
+  env,
+} from "@xenova/transformers";
 
 dotenv.config({ path: ".env" });
+env.cacheDir = "./models";
+
+class XenovaEmbeddings extends Embeddings<number[]> {
+  constructor(private readonly extractor: FeatureExtractionPipeline) {
+    super({});
+  }
+
+  async embedDocuments(texts: string[]): Promise<number[][]> {
+    const vectors = await Promise.all(
+      texts.map((text) => this.embedQuery(text)),
+    );
+    return vectors;
+  }
+
+  async embedQuery(text: string): Promise<number[]> {
+    const output = await this.extractor(text, {
+      pooling: "mean",
+      normalize: true,
+    });
+
+    const embedding = output.tolist
+      ? output.tolist()[0]
+      : Array.from(output.data);
+    return embedding;
+  }
+}
+
+export const createEmbeddings = async () => {
+  const extractor = (await pipeline(
+    "feature-extraction",
+    "Xenova/all-MiniLM-L6-v2",
+  )) as FeatureExtractionPipeline;
+  return new XenovaEmbeddings(extractor);
+};
 
 export const createChatModel = (temperature: number = 0.7) => {
   return new ChatGroq({
@@ -17,11 +56,13 @@ export const createChatModel = (temperature: number = 0.7) => {
   });
 };
 
+const defaultTools: any = [switchTopicTool, followupSuggestionTool];
+
 export const createChain = (
   systemPrompt: string,
   temperature: number = 0.7,
-  tools: StructuredTool[] = [switchTopicTool, followupSuggestionTool],
-) => {
+  tools: any = defaultTools,
+): RunnableSequence<any, any> => {
   const model =
     tools.length > 0
       ? createChatModel(temperature).bindTools(tools)
@@ -35,7 +76,6 @@ export const createChain = (
           IMPORTANT: Always use GitHub-flavored Markdown for formatting.
           
           You have access to several tools. Use them when appropriate:
-          - ALWAYS write a complete, helpful natural language response to the user FIRST.
           - You may call multiple tools in a single turn if needed
           - Only call tools when they add clear value
           
@@ -50,12 +90,11 @@ export const createChain = (
           - Ground responses in retrieved knowledge when available.
           - Do NOT hallucinate medical facts or diagnoses.
           - If information is uncertain or missing, respond conservatively.
-
         `,
     ],
     ["placeholder", "{chat_history}"],
     ["human", "{input}"],
   ]);
 
-  return RunnableSequence.from([prompt, model]);
+  return RunnableSequence.from<any, any>([prompt, model]);
 };

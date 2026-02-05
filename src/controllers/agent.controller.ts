@@ -3,6 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import { successResponse } from "../utils/response";
 import { logger } from "../utils/logging";
 import { agentService } from "../services/agent.service";
+import * as crypto from "crypto";
 
 class AgentController {
   static async new(req: Request, res: Response, next: NextFunction) {
@@ -55,7 +56,9 @@ class AgentController {
 
       res.end();
     } catch (error: any) {
-      logger.error("Error on stream:", error);
+      const errorId = crypto.randomUUID();
+      logger.error(`Error ID: ${errorId}`);
+      logger.error(`Error on stream: ${error}`);
 
       if (!res.headersSent) {
         res.setHeader("Content-Type", "text/event-stream");
@@ -63,7 +66,12 @@ class AgentController {
       }
 
       res.write(`event: error\n`);
-      res.write(`data: ${JSON.stringify({ message: error.message })}\n\n`);
+      res.write(
+        `data: ${JSON.stringify({
+          message: "Oops. Something went wrong, please try again later.",
+          error_id: errorId,
+        })}\n\n`,
+      );
 
       res.end();
     }
