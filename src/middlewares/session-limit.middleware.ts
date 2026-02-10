@@ -12,7 +12,7 @@ interface SessionLimitOptions {
 }
 
 export const createSessionLimit = ({
-  defaultLimit = 50,
+  defaultLimit = 15,
   message = "Too many requests, please try again later.",
 }: SessionLimitOptions = {}) => {
   return async (req: Request, res: Response, next: NextFunction) => {

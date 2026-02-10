@@ -39,7 +39,7 @@ class ChatMessageRepository {
   static async getChatHistory(
     topic: string,
     user_id: string,
-    limit: number = 20,
+    limit: number = 4,
   ) {
     const topicDoc = await Topic.findOne({ name: topic });
     if (!topicDoc) {

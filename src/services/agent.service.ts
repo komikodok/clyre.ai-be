@@ -27,7 +27,7 @@ class AgentService {
 
   async consult(
     params: { topic: string },
-    data: { prompt: string; user_id: string },
+    data: { prompt: string; user_id: string; username?: string },
   ) {
     const { chatHistory, sessionId } =
       await ChatMessageRepository.getChatHistory(params.topic, data.user_id);
@@ -35,6 +35,7 @@ class AgentService {
     const agent = await agentExecutor.invoke({
       input: data.prompt,
       topic: params.topic,
+      username: data.username,
       chat_history: chatHistory,
     });
 
@@ -53,7 +54,7 @@ class AgentService {
 
   async *stream(
     params: { topic: string },
-    data: { prompt: string; user_id: string },
+    data: { prompt: string; user_id: string; username?: string },
     signal?: AbortSignal,
   ) {
     const { chatHistory, sessionId } =
@@ -63,6 +64,7 @@ class AgentService {
       {
         input: data.prompt,
         topic: params.topic,
+        username: data.username,
         chat_history: chatHistory,
       },
       signal,

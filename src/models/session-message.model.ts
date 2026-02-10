@@ -11,19 +11,10 @@ const sessionMessageSchema = new Schema<ISessionMessageDocument>(
       ref: "User",
       required: true,
     },
-    title: {
-      type: String,
-      default: "",
-    },
     topic_id: {
       type: Schema.Types.ObjectId,
       ref: "Topic",
       required: false,
-    },
-    limit_session: {
-      type: Number,
-      default: 50,
-      min: 0,
     },
   },
   {

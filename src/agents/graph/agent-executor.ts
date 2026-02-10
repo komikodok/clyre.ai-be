@@ -14,6 +14,9 @@ export const AgentState = Annotation.Root({
     reducer: (x, y) => y ?? x,
     default: () => "general",
   }),
+  username: Annotation<string>({
+    default: () => "Anonymous",
+  }),
   chat_history: Annotation<BaseMessage[]>({
     reducer: (x, y) => x.concat(y),
     default: () => [],

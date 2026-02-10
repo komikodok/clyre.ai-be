@@ -6,9 +6,7 @@ export type MessageRole = "user" | "assistant" | "tool";
 export interface ISessionMessage {
   id?: string;
   user_id?: string | Types.ObjectId;
-  title?: string;
   topic_id?: string | Types.ObjectId;
-  limit_session?: number;
   created_at?: Date;
   updated_at?: Date;
 }

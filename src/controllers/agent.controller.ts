@@ -4,6 +4,7 @@ import { successResponse } from "../utils/response";
 import { logger } from "../utils/logging";
 import { agentService } from "../services/agent.service";
 import * as crypto from "crypto";
+import { AuthRequest } from "../middlewares/auth.middleware";
 
 class AgentController {
   static async new(req: Request, res: Response, next: NextFunction) {
@@ -16,15 +17,21 @@ class AgentController {
 
   static async consult(req: Request, res: Response, next: NextFunction) {
     const { topic } = req.params;
+    const { prompt } = req.body;
+    const { id, username } = (req as AuthRequest).user;
 
-    const result = await agentService.consult({ topic }, req.body);
+    const result = await agentService.consult(
+      { topic },
+      { prompt, user_id: id, username },
+    );
 
     successResponse(res, StatusCodes.OK, "", result);
   }
 
-  static async stream(req: Request, res: Response, next: NextFunction) {
+  static async stream(req: AuthRequest, res: Response, next: NextFunction) {
     const { topic } = req.params;
-    const { prompt, user_id } = req.body;
+    const { prompt } = req.body;
+    const { id, username } = (req as AuthRequest).user;
 
     const abortController = new AbortController();
     const signal = abortController.signal;
@@ -45,7 +52,7 @@ class AgentController {
 
       const result = agentService.stream(
         { topic },
-        { prompt, user_id },
+        { prompt, user_id: id, username },
         signal,
       );
 

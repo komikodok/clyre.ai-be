@@ -4,7 +4,7 @@ import AgentController from "../controllers/agent.controller";
 import rescue from "express-rescue";
 import docsRouter from "./docs.router";
 import { rateLimitMiddleware } from "../middlewares/rate-limit.middleware";
-import { sessionLimitMiddleware } from "../middlewares/session-limit.middleware";
+import { limitUsageMiddleware } from "../middlewares/limit-usage.middleware";
 
 const agentRouter = Router();
 
@@ -17,12 +17,12 @@ agentRouter.use(rateLimitMiddleware.perDay(100, "user"));
 agentRouter.post("/new", rescue(AgentController.new));
 agentRouter.post(
   "/consult/:topic",
-  sessionLimitMiddleware,
+  limitUsageMiddleware,
   rescue(AgentController.consult),
 );
 agentRouter.post(
   "/stream/:topic",
-  sessionLimitMiddleware,
+  limitUsageMiddleware,
   rescue(AgentController.stream),
 );
 agentRouter.use("/docs/:topic", docsRouter);

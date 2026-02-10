@@ -1,10 +1,17 @@
 import { ChatGroq } from "@langchain/groq";
+
 import { ChatPromptTemplate } from "@langchain/core/prompts";
+
 import { RunnableSequence } from "@langchain/core/runnables";
+
 import { Embeddings } from "@langchain/core/embeddings";
+
 import dotenv from "dotenv";
+
 import { switchTopicTool } from "../tools/switch-topic-tool";
+
 import { followupSuggestionTool } from "../tools/followup_suggestion_tool";
+
 import {
   pipeline,
   type FeatureExtractionPipeline,
@@ -12,6 +19,7 @@ import {
 } from "@xenova/transformers";
 
 dotenv.config({ path: ".env" });
+
 env.cacheDir = "./models";
 
 class XenovaEmbeddings extends Embeddings<number[]> {
@@ -23,18 +31,21 @@ class XenovaEmbeddings extends Embeddings<number[]> {
     const vectors = await Promise.all(
       texts.map((text) => this.embedQuery(text)),
     );
+
     return vectors;
   }
 
   async embedQuery(text: string): Promise<number[]> {
     const output = await this.extractor(text, {
       pooling: "mean",
+
       normalize: true,
     });
 
     const embedding = output.tolist
       ? output.tolist()[0]
       : Array.from(output.data);
+
     return embedding;
   }
 }
@@ -42,16 +53,21 @@ class XenovaEmbeddings extends Embeddings<number[]> {
 export const createEmbeddings = async () => {
   const extractor = (await pipeline(
     "feature-extraction",
+
     "Xenova/all-MiniLM-L6-v2",
   )) as FeatureExtractionPipeline;
+
   return new XenovaEmbeddings(extractor);
 };
 
 export const createChatModel = (temperature: number = 0.7) => {
   return new ChatGroq({
     apiKey: process.env.GROQ_API_KEY,
+
     model: process.env.MODEL_NAME || "llama-3.3-70b-versatile",
+
     temperature,
+
     streaming: true,
   });
 };
@@ -63,38 +79,65 @@ export const createChain = (
   temperature: number = 0.7,
   tools: any = defaultTools,
 ): RunnableSequence<any, any> => {
-  const model =
-    tools.length > 0
-      ? createChatModel(temperature).bindTools(tools)
-      : createChatModel(temperature);
+  const model = createChatModel(temperature);
+
+  const finalModel = tools.length > 0 ? model.bindTools(tools) : model;
+
+  const optimizedSystemPrompt = `${systemPrompt}
+    Your name is Luka.
+    
+    IMPORTANT: Always use GitHub-flavored Markdown for formatting. 
+    Respond in user's language. 
+
+    Use tools when appropriate. Be conservative with medical information.
+
+  `;
 
   const prompt = ChatPromptTemplate.fromMessages([
-    ["system", systemPrompt],
-    [
-      "system",
-      `
-          IMPORTANT: Always use GitHub-flavored Markdown for formatting.
-          
-          You have access to several tools. Use them when appropriate:
-          - You may call multiple tools in a single turn if needed
-          - Only call tools when they add clear value
-          
-          When calling tools, follow the required schema format.
+    ["system", optimizedSystemPrompt],
 
-          Always respond in the same language as the user's most recent message.
-          Never mention language detection, translation, or reasoning.
-          If the user switches language, follow the new language immediately.
-          IMPORTANT: Always respond in the same language as the user's input.
-
-          IMPORTANT:
-          - Ground responses in retrieved knowledge when available.
-          - Do NOT hallucinate medical facts or diagnoses.
-          - If information is uncertain or missing, respond conservatively.
-        `,
-    ],
     ["placeholder", "{chat_history}"],
+
     ["human", "{input}"],
   ]);
 
-  return RunnableSequence.from<any, any>([prompt, model]);
+  return RunnableSequence.from<any, any>([prompt, finalModel]);
 };
+
+//  ["system", systemPrompt],
+
+// [
+
+//   "system",
+
+//   `
+
+//       IMPORTANT: Always use GitHub-flavored Markdown for formatting.
+
+//       You have access to several tools. Use them when appropriate:
+
+//       - You may call multiple tools in a single turn if needed
+
+//       - Only call tools when they add clear value
+
+//       When calling tools, follow the required schema format.
+
+//       Always respond in the same language as the user's most recent message.
+
+//       Never mention language detection, translation, or reasoning.
+
+//       If the user switches language, follow the new language immediately.
+
+//       IMPORTANT: Always respond in the same language as the user's input.
+
+//       IMPORTANT:
+
+//       - Ground responses in retrieved knowledge when available.
+
+//       - Do NOT hallucinate medical facts or diagnoses.
+
+//       - If information is uncertain or missing, respond conservatively.
+
+//     `,
+
+// ],
