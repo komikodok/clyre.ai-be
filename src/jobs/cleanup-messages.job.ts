@@ -26,6 +26,4 @@ export const cleanupMessagesJob = () => {
 
     logger.info("Cleanup job finished");
   });
-
-  logger.info("Cleanup job scheduled (speed mode ON)");
 };
