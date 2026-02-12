@@ -84,7 +84,7 @@ export const createChain = (
   const finalModel = tools.length > 0 ? model.bindTools(tools) : model;
 
   const optimizedSystemPrompt = `${systemPrompt}
-    Your name is Luka.
+    Your name is Alysia.
     
     IMPORTANT: Always use GitHub-flavored Markdown for formatting. 
     Respond in user's language. 

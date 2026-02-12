@@ -12,13 +12,14 @@ export const limitUsageMiddleware = async (
 ) => {
   try {
     const LIMIT = 40;
-    const { id, username } = (req as AuthRequest).user;
+    const { id } = (req as AuthRequest).user;
 
     const limitUsage = await LimitUsage.findOneAndUpdate(
       { user_id: id },
       [
         {
           $set: {
+            max_usage: { $ifNull: ["$max_usage", LIMIT] },
             usage: {
               $cond: {
                 if: { $gt: [{ $ifNull: ["$usage", LIMIT] }, 0] },
@@ -34,25 +35,20 @@ export const limitUsageMiddleware = async (
       { upsert: true, new: true, updatePipeline: true },
     );
 
-    if (limitUsage.usage <= 0) {
-      res.set({
-        "X-Session-Limit": LIMIT.toString(),
-        "X-Session-Remaining": "0",
-      });
+    res.set({
+      "X-Session-Limit": limitUsage.max_usage.toString(),
+      "X-Session-Remaining": limitUsage.usage.toString(),
+    });
 
+    if (limitUsage.usage <= 0) {
       throw new ResponseError(
         "Daily messages limit reached.",
         StatusCodes.TOO_MANY_REQUESTS,
       );
     }
 
-    res.set({
-      "X-Session-Limit": LIMIT.toString(),
-      "X-Session-Remaining": limitUsage.usage.toString(),
-    });
-
     logger.debug(`Session limit updated for key: ${id}`, {
-      limit: limitUsage.usage,
+      limit: limitUsage.max_usage,
       remaining: limitUsage.usage,
     });
 

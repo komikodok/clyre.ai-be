@@ -4,7 +4,7 @@ export interface ILimitUsage {
   id?: string;
   user_id: mongoose.Types.ObjectId;
   usage: number;
-  is_exceeded: boolean;
+  max_usage: number;
 }
 
 export interface ILimitUsageDocument
@@ -24,11 +24,9 @@ const limitUsageSchema = new Schema<ILimitUsageDocument>(
       max: 40,
       min: 0,
     },
-    is_exceeded: {
-      type: Boolean,
-      required: true,
-      default: false,
-      index: true,
+    max_usage: {
+      type: Number,
+      default: 40,
     },
   },
   {
