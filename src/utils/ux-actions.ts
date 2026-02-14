@@ -22,7 +22,6 @@ export const buildUXActions = (tool_results: any, tool_calls: ToolCall[]) => {
           },
         ];
         break;
-
       case "followup_suggestion_tool":
         ux_action = [
           ...ux_action,

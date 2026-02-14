@@ -1,5 +1,5 @@
 import { DynamicStructuredTool } from "langchain";
-import { z } from "zod";
+import { z, ZodTypeAny } from "zod";
 
 export const followupSuggestionTool = new DynamicStructuredTool({
   name: "followup_suggestion_tool",
@@ -22,9 +22,9 @@ export const followupSuggestionTool = new DynamicStructuredTool({
       z
         .string()
         .describe(
-          "A short, natural follow-up QUESTION from the user perspective"
-        )
+          "A short, natural follow-up QUESTION from the user perspective",
+        ),
     ),
-  }),
-  func: async (args) => args,
+  }) as ZodTypeAny,
+  func: async (args: any) => args,
 });

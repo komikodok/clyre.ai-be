@@ -7,7 +7,7 @@ export const streamAgent = async function* (
   input: {
     input: string;
     topic: string;
-    username?: string;
+    username: string;
     chat_history?: (BaseMessage | BaseMessageChunk)[];
   },
   signal?: AbortSignal,

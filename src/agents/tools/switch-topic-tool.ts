@@ -1,5 +1,5 @@
 import { DynamicStructuredTool } from "@langchain/core/tools";
-import { z } from "zod";
+import { z, ZodTypeAny } from "zod";
 
 export const switchTopicTool = new DynamicStructuredTool({
   name: "switch_topic_tool",
@@ -18,7 +18,6 @@ export const switchTopicTool = new DynamicStructuredTool({
       .string()
       .optional()
       .describe("Empathetic suggestion shown ONLY if intent_level is 'clear'"),
-  }),
-
-  func: async (args) => args,
+  }) as ZodTypeAny,
+  func: async (args: any) => args,
 });
