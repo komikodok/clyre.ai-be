@@ -2,12 +2,11 @@ import mongoose, { Schema, Document } from "mongoose";
 import { IChatMessage } from "../types/message.type";
 
 export interface IChatMessageDocument
-  extends Omit<IChatMessage, "id">,
-    Document {}
+  extends Omit<IChatMessage, "id">, Document {}
 
 const chatMessageSchema = new Schema<IChatMessageDocument>(
   {
-    session_id: {
+    session_message_id: {
       type: Schema.Types.ObjectId,
       ref: "SessionMessage",
       required: true,
@@ -30,7 +29,7 @@ const chatMessageSchema = new Schema<IChatMessageDocument>(
       required: false,
     },
     tool_calls: {
-      type: Array,
+      type: Schema.Types.Mixed,
       default: [],
       required: false,
     },
@@ -50,15 +49,15 @@ const chatMessageSchema = new Schema<IChatMessageDocument>(
         return ret;
       },
     },
-  }
+  },
 );
 
-chatMessageSchema.index({ session_id: 1, created_at: 1 });
+chatMessageSchema.index({ session_message_id: 1, created_at: 1 });
 
 const ChatMessage = mongoose.model<IChatMessageDocument>(
   "ChatMessage",
   chatMessageSchema,
-  "chat_messages"
+  "chat_messages",
 );
 
 export default ChatMessage;

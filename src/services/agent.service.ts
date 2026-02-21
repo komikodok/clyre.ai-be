@@ -29,7 +29,7 @@ class AgentService {
     params: { topic: string },
     data: { prompt: string; user_id: string; username?: string },
   ) {
-    const { chatHistory, sessionId } =
+    const { chatHistory, sessionMessageId } =
       await ChatMessageRepository.getChatHistory(params.topic, data.user_id);
 
     const agent = await agentExecutor.invoke({
@@ -44,6 +44,15 @@ class AgentService {
       agent.tool_calls as ToolCall[],
     );
 
+    // await ChatMessageRepository.saveMessages(sessionMessageId, [
+    //   { role: "user", content: data.input },
+    //   {
+    //     role: "assistant",
+    //     content: agent.result,
+    //     tool_calls: agent.tool_calls,
+    //   },
+    // ]);
+
     return {
       data: {
         ai_message: agent?.result,
@@ -57,7 +66,7 @@ class AgentService {
     data: { prompt: string; user_id: string; username?: string },
     signal?: AbortSignal,
   ) {
-    const { chatHistory, sessionId } =
+    const { chatHistory, sessionMessageId } =
       await ChatMessageRepository.getChatHistory(params.topic, data.user_id);
 
     const agent = streamAgent(
@@ -80,6 +89,14 @@ class AgentService {
           break;
         case "__end__":
           const { data, ux_actions } = event.value;
+          // await ChatMessageRepository.saveMessages(sessionMessageId, [
+          //   { role: "user", content: data.input || "" },
+          //   {
+          //     role: "assistant",
+          //     content: data.result,
+          //     tool_calls: data.tool_calls,
+          //   },
+          // ]);
 
           yield {
             type: "__end__",

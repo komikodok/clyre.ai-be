@@ -1,8 +1,6 @@
 import { createChain } from "../utils/chain-factory";
 
 const systemPrompt = `
-    CURRENT TOPIC: burnout
-
     Focus on exhaustion, detachment, reduced effectiveness from chronic stress.
     Frame burnout as a stress response, not personal failure.
     Suggest sustainable recovery strategies, not productivity hacks.

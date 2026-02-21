@@ -1,5 +1,5 @@
 interface TopicAction {
-  type: "SWITCH_TOPIC" | "STAY_ON_TOPIC";
+  type: "SWITCH_TOPIC";
   target_topic?: string;
   message?: string;
 }

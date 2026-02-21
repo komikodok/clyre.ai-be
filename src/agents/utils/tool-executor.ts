@@ -1,14 +1,24 @@
 import { ToolCall } from "langchain";
 import { tools } from "../tools";
 import { logger } from "../../utils/logging";
+import { AgentExecutorState } from "../graph/agent-executor";
 
-export const toolExecutor = async (tool_calls: ToolCall[]) => {
+export const toolExecutor = async (
+  toolCalls: ToolCall[],
+  state?: AgentExecutorState,
+) => {
   const results = await Promise.all(
-    tool_calls.map((toolCall) => {
+    toolCalls.map((toolCall) => {
       const tool = tools[toolCall.name as keyof typeof tools];
 
-      return tool.func(toolCall.args as any);
-    })
+      let args = toolCall.args as any;
+
+      if (toolCall.name === "switch_topic_tool") {
+        args.current_topic = state?.topic;
+      }
+
+      return tool.func(args);
+    }),
   );
 
   return results;

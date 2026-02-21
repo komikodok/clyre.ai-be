@@ -1,4 +1,4 @@
-import { DynamicStructuredTool } from "@langchain/core/tools";
+import { DynamicStructuredTool } from "langchain";
 import { z, ZodTypeAny } from "zod";
 
 export const switchTopicTool = new DynamicStructuredTool({
@@ -12,8 +12,8 @@ export const switchTopicTool = new DynamicStructuredTool({
         DO NOT call this tool.
     `,
   schema: z.object({
-    suggested_topic: z.enum(["general", "anxiety", "insomnia", "burnout"]),
-
+    current_topic: z.enum(["general", "anxiety", "insomnia", "burnout"]),
+    target_topic: z.enum(["general", "anxiety", "insomnia", "burnout"]),
     handoff_message: z
       .string()
       .optional()

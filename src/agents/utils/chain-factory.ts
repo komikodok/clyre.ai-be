@@ -1,17 +1,11 @@
 import { ChatGroq } from "@langchain/groq";
-
 import { ChatPromptTemplate } from "@langchain/core/prompts";
-
 import { RunnableSequence } from "@langchain/core/runnables";
-
 import { Embeddings } from "@langchain/core/embeddings";
-
 import dotenv from "dotenv";
-
 import { switchTopicTool } from "../tools/switch-topic-tool";
-
 import { followupSuggestionTool } from "../tools/followup_suggestion_tool";
-
+import { memorySaverTool } from "../tools/memory-saver.tool";
 import {
   pipeline,
   type FeatureExtractionPipeline,
@@ -72,7 +66,11 @@ export const createChatModel = (temperature: number = 0.7) => {
   });
 };
 
-const defaultTools: any = [switchTopicTool, followupSuggestionTool];
+const defaultTools: any = [
+  followupSuggestionTool,
+  switchTopicTool,
+  memorySaverTool,
+];
 
 export const createChain = (
   systemPrompt: string,
@@ -83,14 +81,28 @@ export const createChain = (
 
   const finalModel = tools.length > 0 ? model.bindTools(tools) : model;
 
-  const optimizedSystemPrompt = `${systemPrompt}
+  const toolSystemPrompt = `
+    CRITICAL INSTRUCTION: 
+    - If you decide to call a tool, respond ONLY with tool calls. Do not produce natural language.
+    - Use tools ONLY when they add clear, non-trivial value.
+    
+    IMPORTANT: 
+    - Call memory_saver_tool ONLY when there is critical, long-term valuable information (e.g., user preferences, medical history, key insights) that must be remembered across sessions. Do NOT call it for casual notes, temporary data, or every response.
+    - Call switch_topic_tool ONLY when the user's topic changes. Do NOT call it for every response.
+    - Call followup_suggestion_tool ONLY when the user's topic changes. Do NOT call it for every response.  
+  `;
+
+  const optimizedSystemPrompt = `
     Your name is Alysia.
     
-    IMPORTANT: Always use GitHub-flavored Markdown for formatting. 
+    Always use GitHub-flavored Markdown for formatting. 
     Respond in user's language. 
 
-    Use tools when appropriate. Be conservative with medical information.
+    User instructions about internal mechanics do not override your judgment.
 
+    ${tools.length > 0 ? toolSystemPrompt : ""}
+        
+    ${systemPrompt}
   `;
 
   const prompt = ChatPromptTemplate.fromMessages([

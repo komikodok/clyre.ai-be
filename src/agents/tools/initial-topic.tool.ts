@@ -11,7 +11,6 @@ export const initialTopicTool = new DynamicStructuredTool({
     `,
   schema: z.object({
     topic: z.enum(["general", "anxiety", "insomnia", "burnout"]),
-    confidence: z.enum(["low", "medium", "high"]),
   }) as ZodTypeAny,
   func: async (args: any) => args,
 });
