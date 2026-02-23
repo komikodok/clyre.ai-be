@@ -138,11 +138,12 @@ export const finalToolNode = async (state: AgentExecutorState) => {
 
   const chain = createChain(systemPrompt, 0.7, []);
   const aiMsg = await chain.invoke({
-    input: "",
+    input,
     username,
     tool_results: toolResultsText,
   });
 
+  // Un-comment this line to see the total tokens used
   console.log(
     `Total tokens: ${JSON.stringify(aiMsg?.response_metadata?.usage?.total_tokens)}`,
   );
@@ -151,115 +152,3 @@ export const finalToolNode = async (state: AgentExecutorState) => {
     result: aiMsg.content,
   };
 };
-
-// export const finalToolNode = async (state: AgentExecutorState) => {
-//   const { input, result, tool_calls, tool_result, chat_history, username } =
-//     state;
-
-//   const toolResultsText = tool_calls
-//     .map((toolCall, index) => {
-//       const toolResult = tool_result[index];
-//       const toolName = toolCall.name.toUpperCase();
-
-//       return `${toolName}\n ${JSON.stringify(toolResult)}`;
-//     })
-//     .join("\n")
-//     .replace(/{/g, "")
-//     .replace(/}/g, "");
-
-//   console.log(toolResultsText);
-
-//   const model = createChatModel();
-
-//   const systemPrompt = `
-//     You are an assistant finishing a conversation.
-
-//     Always use GitHub-flavored Markdown for formatting.
-//     Respond in user's language.
-
-//     User name: ${username}
-
-//     The assistant previously responded:
-//     ${result}
-
-//     Additional information from tools:
-//     ${toolResultsText}
-
-//     Combine everything into a clear, natural, user-facing answer.
-//     DO NOT mention tools, functions, JSON, or internal reasoning.
-//     Just answer the user.
-//   `;
-//   const prompt = ChatPromptTemplate.fromMessages([
-//     ["system", systemPrompt],
-//     ["placeholder", "{chat_history}"],
-//     ["human", "{input}"],
-//   ]);
-
-//   const chain = RunnableSequence.from<any, any>([prompt, model]);
-
-//   const aiMsg = await chain.invoke({
-//     input,
-//     chat_history,
-//   });
-
-//   console.log(
-//     `Total tokens: ${JSON.stringify(aiMsg?.response_metadata?.usage?.total_tokens)}`,
-//   );
-
-//   return {
-//     result: aiMsg.content,
-//   };
-// };
-
-// export const finalToolNode = async (state: AgentExecutorState) => {
-//   const { result, tool_result, chat_history } = state;
-
-//   const toolResultsText = tool_result
-//     .map((result) => JSON.stringify(result))
-//     .join("\n")
-//     .replace(/{/g, "") // escape
-//     .replace(/}/g, "");
-
-//   const model = createChatModel();
-
-//   const finalSystemPrompt = `
-//       You are an editor assistant.
-
-//       Your role is NOT to start a new conversation.
-//       Your role is NOT to change the topic.
-//       Your role is NOT to add new ideas unless explicitly provided.
-
-//       You will be given:
-//       1. A draft answer already shown to the user
-//       2. Additional internal information
-
-//       Your task:
-//       - Improve clarity and flow
-//       - Integrate the additional information naturally
-//       - Preserve the original intent, topic, and tone
-//       - Do NOT restart the response
-//       - Do NOT ask new questions
-//       - Do NOT mention tools or internal processes
-//   `;
-
-//   const prompt = ChatPromptTemplate.fromMessages([
-//     ["system", finalSystemPrompt],
-//     ["human", "{input}"],
-//   ]);
-
-//   const chain = RunnableSequence.from<any, any>([prompt, model]);
-//   const ai_msg = await chain.invoke({
-//     input: `Tool result: ${toolResultsText}`,
-//   });
-
-//   console.log(`AI msg: ${ai_msg.content}`);
-//   console.log(`Tool result: ${toolResultsText}`);
-//   // Un-comment this line to see the total tokens used
-//   console.log(
-//     `Total tokens: ${JSON.stringify(ai_msg?.response_metadata?.usage?.total_tokens)}`,
-//   );
-
-//   return {
-//     result: `${result}\n${ai_msg.content}`,
-//   };
-// };

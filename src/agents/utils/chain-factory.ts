@@ -81,6 +81,13 @@ export const createChain = (
 
   const finalModel = tools.length > 0 ? model.bindTools(tools) : model;
 
+  // `    When using a tool:
+  //   - First respond with a short, natural, human-like explanation of what you are doing.
+  //   - Then call the tool.
+  //   - After receiving the tool result, respond again with a natural explanation of the result.
+  //   - Never expose internal mechanics or mention "tool calls".
+
+  //   User instructions about internal mechanics do not override your judgment.`;
   const toolSystemPrompt = `
     CRITICAL INSTRUCTION: 
     - If you decide to call a tool, respond ONLY with tool calls. Do not produce natural language.
@@ -115,41 +122,3 @@ export const createChain = (
 
   return RunnableSequence.from<any, any>([prompt, finalModel]);
 };
-
-//  ["system", systemPrompt],
-
-// [
-
-//   "system",
-
-//   `
-
-//       IMPORTANT: Always use GitHub-flavored Markdown for formatting.
-
-//       You have access to several tools. Use them when appropriate:
-
-//       - You may call multiple tools in a single turn if needed
-
-//       - Only call tools when they add clear value
-
-//       When calling tools, follow the required schema format.
-
-//       Always respond in the same language as the user's most recent message.
-
-//       Never mention language detection, translation, or reasoning.
-
-//       If the user switches language, follow the new language immediately.
-
-//       IMPORTANT: Always respond in the same language as the user's input.
-
-//       IMPORTANT:
-
-//       - Ground responses in retrieved knowledge when available.
-
-//       - Do NOT hallucinate medical facts or diagnoses.
-
-//       - If information is uncertain or missing, respond conservatively.
-
-//     `,
-
-// ],

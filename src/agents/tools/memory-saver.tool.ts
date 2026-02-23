@@ -19,24 +19,20 @@ export const memorySaverTool = new DynamicStructuredTool({
     content: z.string().describe("The important information to save in memory"),
   }) as ZodTypeAny,
   func: async (args: { username: string; content: string }) => {
-    try {
-      const user = await User.findOne({ username: args.username });
+    const user = await User.findOne({ username: args.username });
 
-      const memory = await Memory.findOneAndUpdate(
-        { user_id: user._id },
-        {
-          $push: {
-            memory: {
-              $each: [args.content],
-              $slice: -7,
-            },
+    const memory = await Memory.findOneAndUpdate(
+      { user_id: user._id },
+      {
+        $push: {
+          memory: {
+            $each: [args.content],
+            $slice: -7,
           },
         },
-        { upsert: true, new: true },
-      );
-      return `Memory saved: ${args.content}`;
-    } catch (error) {
-      return `Failed to save memory: ${error}`;
-    }
+      },
+      { upsert: true, new: true },
+    ).lean();
+    return memory.content;
   },
 });

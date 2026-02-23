@@ -3,7 +3,7 @@ import mongoose, { Schema, Document } from "mongoose";
 export interface IMemory {
   id?: string;
   user_id: string | mongoose.Types.ObjectId;
-  content: string;
+  content: string[];
   created_at?: Date;
   updated_at?: Date;
 }
@@ -18,7 +18,7 @@ const memorySchema = new Schema<IMemoryDocument>(
       required: true,
     },
     content: {
-      type: String,
+      type: [String],
       required: true,
     },
   },
