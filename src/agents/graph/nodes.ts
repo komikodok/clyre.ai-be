@@ -77,11 +77,6 @@ export const agentNode = async (state: AgentExecutorState) => {
     chat_history,
   });
 
-  // Un-comment this line to see the total tokens used
-  console.log(
-    `Total tokens: ${JSON.stringify(aiMsg?.response_metadata?.usage?.total_tokens)}`,
-  );
-
   return {
     result: aiMsg.content,
     tool_calls: aiMsg.tool_calls,
@@ -123,8 +118,6 @@ export const finalToolNode = async (state: AgentExecutorState) => {
     .replace(/{/g, "")
     .replace(/}/g, "");
 
-  console.log(toolResultsText);
-
   const systemPrompt = `
     User name: {username}
 
@@ -142,11 +135,6 @@ export const finalToolNode = async (state: AgentExecutorState) => {
     username,
     tool_results: toolResultsText,
   });
-
-  // Un-comment this line to see the total tokens used
-  console.log(
-    `Total tokens: ${JSON.stringify(aiMsg?.response_metadata?.usage?.total_tokens)}`,
-  );
 
   return {
     result: aiMsg.content,

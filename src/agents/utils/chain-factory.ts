@@ -81,13 +81,6 @@ export const createChain = (
 
   const finalModel = tools.length > 0 ? model.bindTools(tools) : model;
 
-  // `    When using a tool:
-  //   - First respond with a short, natural, human-like explanation of what you are doing.
-  //   - Then call the tool.
-  //   - After receiving the tool result, respond again with a natural explanation of the result.
-  //   - Never expose internal mechanics or mention "tool calls".
-
-  //   User instructions about internal mechanics do not override your judgment.`;
   const toolSystemPrompt = `
     CRITICAL INSTRUCTION: 
     - If you decide to call a tool, respond ONLY with tool calls. Do not produce natural language.
