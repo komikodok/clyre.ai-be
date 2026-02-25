@@ -3,11 +3,10 @@ import { BaseMessage } from "@langchain/core/messages";
 import {
   agentNode,
   executeToolNode,
-  finalToolNode,
   executeToolOrReturn,
   retrieveDocsNode,
 } from "./nodes";
-import { ToolCall } from "langchain";
+import { ToolCall } from "@langchain/core/messages";
 
 export const AgentState = Annotation.Root({
   input: Annotation<string>,
@@ -47,7 +46,6 @@ const workflow = new StateGraph(AgentState)
   .addNode("retrieveDocsNode", retrieveDocsNode)
   .addNode("agentNode", agentNode)
   .addNode("executeToolNode", executeToolNode)
-  .addNode("finalToolNode", finalToolNode)
 
   .addEdge(START, "retrieveDocsNode")
   .addEdge("retrieveDocsNode", "agentNode")
@@ -55,8 +53,6 @@ const workflow = new StateGraph(AgentState)
     executeToolNode: "executeToolNode",
     [END]: END,
   })
-  // .addEdge("executeToolNode", END);
-  .addEdge("executeToolNode", "finalToolNode")
-  .addEdge("finalToolNode", END);
+  .addEdge("executeToolNode", END);
 
 export const agentExecutor = workflow.compile();

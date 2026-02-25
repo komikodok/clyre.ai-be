@@ -1,24 +1,22 @@
-import { DynamicStructuredTool } from "langchain";
-import { z, ZodTypeAny } from "zod";
+import { tool } from "@langchain/core/tools";
+import { z } from "zod";
 import Memory from "../../models/memory.model";
 import User from "../../models/user.model";
+import { logger } from "../../utils/logging";
 
-export const memorySaverTool = new DynamicStructuredTool({
-  name: "memory_saver_tool",
-  description: `
-    Save important, long-term information that should be remembered across conversations within this session.
-    Only use this tool for critical facts, preferences, or insights that will be valuable for future interactions.
-    Do NOT use for temporary notes or routine responses.
-  `,
-  schema: z.object({
-    username: z
-      .string()
-      .describe(
-        "The username of the user whose session memory should be stored",
-      ),
-    content: z.string().describe("The important information to save in memory"),
-  }) as ZodTypeAny,
-  func: async (args: { username: string; content: string }) => {
+const memorySaverSchema = z.object({
+  username: z
+    .string()
+    .describe("The username of the user whose session memory should be stored"),
+  content: z.string().describe("The important information to save in memory"),
+  handoff_message: z
+    .string()
+    .optional()
+    .describe("Optional message related to the saved memory."),
+});
+
+export const memorySaverTool = tool(
+  async (args: z.infer<typeof memorySaverSchema>) => {
     try {
       const user = await User.findOne({ username: args.username });
 
@@ -26,7 +24,7 @@ export const memorySaverTool = new DynamicStructuredTool({
         { user_id: user._id },
         {
           $push: {
-            memory: {
+            contents: {
               $each: [args.content],
               $slice: -7,
             },
@@ -34,9 +32,19 @@ export const memorySaverTool = new DynamicStructuredTool({
         },
         { upsert: true, new: true },
       );
-      return `Memory saved: ${args.content}`;
+      return { handoff_message: args.handoff_message || "Memory saved" };
     } catch (error) {
-      return `Failed to save memory: ${error}`;
+      logger.error("Failed to save memory", error);
+      return { error: `Failed to save memory: ${error}` };
     }
   },
-});
+  {
+    name: "memory_saver_tool",
+    description: `
+      Save important, long-term information that should be remembered across conversations within this session.
+      Only use this tool for critical facts, preferences, or insights that will be valuable for future interactions.
+      Do NOT use for temporary notes or routine responses.
+    `,
+    schema: memorySaverSchema,
+  },
+);
