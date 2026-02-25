@@ -1,4 +1,4 @@
-import { DynamicStructuredTool } from "langchain";
+import { DynamicStructuredTool } from "@langchain/core/tools";
 import { z, ZodTypeAny } from "zod";
 import Memory from "../../models/memory.model";
 import User from "../../models/user.model";
