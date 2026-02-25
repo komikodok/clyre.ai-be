@@ -1,4 +1,4 @@
-import { DynamicStructuredTool } from "langchain";
+import { DynamicStructuredTool } from "@langchain/core/tools";
 import { z, ZodTypeAny } from "zod";
 
 export const switchTopicTool = new DynamicStructuredTool({
