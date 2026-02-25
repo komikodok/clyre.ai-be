@@ -98,45 +98,9 @@ export const executeToolNode = async (state: AgentExecutorState) => {
 
   const executeTools = await toolExecutor(tool_calls, state);
 
+  console.log(`Tool result: ${JSON.stringify(executeTools)}`);
+
   return {
     tool_result: executeTools,
-  };
-};
-
-export const finalToolNode = async (state: AgentExecutorState) => {
-  const { input, result, tool_calls, tool_result, chat_history, username } =
-    state;
-
-  const toolResultsText = tool_calls
-    .map((toolCall, index) => {
-      const toolResult = tool_result[index];
-      const toolName = toolCall.name.toUpperCase();
-
-      return `${toolName}\n ${JSON.stringify(toolResult)}`;
-    })
-    .join("\n")
-    .replace(/{/g, "")
-    .replace(/}/g, "");
-
-  const systemPrompt = `
-    User name: {username}
-
-    Additional information from tools:
-    {tool_results}
-
-    Combine everything into a clear, natural, user-facing answer.
-    DO NOT mention tools, functions, JSON, or internal reasoning.
-    Just answer the user.
-  `;
-
-  const chain = createChain(systemPrompt, 0.7, []);
-  const aiMsg = await chain.invoke({
-    input,
-    username,
-    tool_results: toolResultsText,
-  });
-
-  return {
-    result: aiMsg.content,
   };
 };

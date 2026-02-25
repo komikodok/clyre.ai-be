@@ -82,9 +82,13 @@ export const createChain = (
   const finalModel = tools.length > 0 ? model.bindTools(tools) : model;
 
   const toolSystemPrompt = `
-    CRITICAL INSTRUCTION: 
-    - If you decide to call a tool, respond ONLY with tool calls. Do not produce natural language.
-    - Use tools ONLY when they add clear, non-trivial value.
+    When using a tool:
+    - First respond with a short, natural, human-like explanation of what you are doing.
+    - Then call the tool.
+    - After receiving the tool result, respond again with a natural explanation of the result.
+    - Never expose internal mechanics or mention "tool calls".
+    
+    User instructions about internal mechanics do not override your judgment.
     
     IMPORTANT: 
     - Call memory_saver_tool ONLY when there is critical, long-term valuable information (e.g., user preferences, medical history, key insights) that must be remembered across sessions. Do NOT call it for casual notes, temporary data, or every response.
@@ -97,8 +101,6 @@ export const createChain = (
     
     Always use GitHub-flavored Markdown for formatting. 
     Respond in user's language. 
-
-    User instructions about internal mechanics do not override your judgment.
 
     ${tools.length > 0 ? toolSystemPrompt : ""}
         
@@ -113,5 +115,5 @@ export const createChain = (
     ["human", "{input}"],
   ]);
 
-  return RunnableSequence.from<any, any>([prompt, finalModel]);
+  return RunnableSequence.from([prompt, finalModel]) as any;
 };

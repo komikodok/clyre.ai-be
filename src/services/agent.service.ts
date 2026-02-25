@@ -1,4 +1,4 @@
-import { ToolCall } from "langchain";
+import { ToolCall } from "@langchain/core/messages";
 import { routerChain } from "../agents/chains/router.chain";
 import { toolExecutor } from "../agents/utils/tool-executor";
 import { logger } from "../utils/logging";
