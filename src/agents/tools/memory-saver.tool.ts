@@ -26,7 +26,7 @@ export const memorySaverTool = tool(
           $push: {
             contents: {
               $each: [args.content],
-              $slice: -7,
+              $slice: -10,
             },
           },
         },
@@ -41,9 +41,8 @@ export const memorySaverTool = tool(
   {
     name: "memory_saver_tool",
     description: `
-      Save important, long-term information that should be remembered across conversations within this session.
-      Only use this tool for critical facts, preferences, or insights that will be valuable for future interactions.
-      Do NOT use for temporary notes or routine responses.
+      Save important user information for future conversations.
+      Use sparingly - only for preferences, recurring themes, or key personal facts.
     `,
     schema: memorySaverSchema,
   },

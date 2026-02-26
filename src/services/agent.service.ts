@@ -13,14 +13,14 @@ class AgentService {
 
     const toolResults = await toolExecutor(chain.tool_calls as ToolCall[]);
 
-    const UXActionsde = buildUXActions(
+    const UXActions = buildUXActions(
       toolResults,
       chain.tool_calls as ToolCall[],
     );
 
     return {
       data: {
-        ux_actions: UXActionsde,
+        ux_actions: UXActions,
       },
     };
   }
