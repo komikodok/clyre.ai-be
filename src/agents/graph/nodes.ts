@@ -77,6 +77,12 @@ export const agentNode = async (state: AgentExecutorState) => {
     chat_history,
   });
 
+  // Un-comment this line to see the total tokens used
+  console.log(
+    "Full usage:",
+    JSON.stringify(aiMsg?.response_metadata?.usage, null, 2),
+  );
+
   return {
     result: aiMsg.content,
     tool_calls: aiMsg.tool_calls,
@@ -135,6 +141,12 @@ export const finalToolNode = async (state: AgentExecutorState) => {
     username,
     tool_results: toolResultsText,
   });
+
+  // Un-comment this line to see the total tokens used
+  console.log(
+    "Full usage:",
+    JSON.stringify(aiMsg?.response_metadata?.usage, null, 2),
+  );
 
   return {
     result: aiMsg.content,
