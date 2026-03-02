@@ -7,6 +7,9 @@ import { MongoDBAtlasVectorSearch } from "@langchain/mongodb";
 import { createEmbeddings } from "../utils/chain-factory";
 import mongoose from "mongoose";
 import { createChain, createChatModel } from "../utils/chain-factory";
+import { ChatPromptTemplate } from "@langchain/core/prompts";
+import { RunnableSequence } from "@langchain/core/runnables";
+import { MemoryRepository } from "../../repositories/memory.repository";
 
 export const retrieveDocsNode = async (state: AgentExecutorState) => {
   const { topic, input } = state;
@@ -53,8 +56,30 @@ export const retrieveDocsNode = async (state: AgentExecutorState) => {
   }
 };
 
+export const retrieveMemoryNode = async (state: AgentExecutorState) => {
+  const { username } = state;
+
+  try {
+    if (!username || username === "Anonymous") {
+      return { memory: [] };
+    }
+
+    const memory = await MemoryRepository.getMemoryByUsername(username);
+    const optimizedMemory =
+      memory && memory.length > 0 ? `Memory: \n- ${memory.join("\n- ")}` : "";
+
+    return {
+      memory: optimizedMemory,
+    };
+  } catch (err) {
+    logger.error("Error retrieving memory", err);
+    return { memory: [] };
+  }
+};
+
 export const agentNode = async (state: AgentExecutorState) => {
-  const { topic, input, chat_history, retrieved_context, username } = state;
+  const { topic, input, chat_history, retrieved_context, username, memory } =
+    state;
 
   const activeChain = chains[topic as keyof typeof chains] || chains["general"];
 
@@ -66,7 +91,7 @@ export const agentNode = async (state: AgentExecutorState) => {
     ${optimizedContext}\n\n
 
     USER NAME: ${username}\n\n
-    
+    ${memory}\n\n
     USER INPUT: ${input}\n\n
   `;
 

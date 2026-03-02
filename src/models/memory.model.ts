@@ -3,7 +3,7 @@ import mongoose, { Schema, Document } from "mongoose";
 export interface IMemory {
   id?: string;
   user_id: string | mongoose.Types.ObjectId;
-  content: string[];
+  contents: string[];
   created_at?: Date;
   updated_at?: Date;
 }
@@ -17,7 +17,7 @@ const memorySchema = new Schema<IMemoryDocument>(
       ref: "User",
       required: true,
     },
-    content: {
+    contents: {
       type: [String],
       required: true,
     },

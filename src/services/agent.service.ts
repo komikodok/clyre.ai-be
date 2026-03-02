@@ -1,4 +1,4 @@
-import { ToolCall } from "langchain";
+import { ToolCall } from "@langchain/core/messages";
 import { routerChain } from "../agents/chains/router.chain";
 import { toolExecutor } from "../agents/utils/tool-executor";
 import { logger } from "../utils/logging";
@@ -13,14 +13,14 @@ class AgentService {
 
     const toolResults = await toolExecutor(chain.tool_calls as ToolCall[]);
 
-    const UXActionsde = buildUXActions(
+    const UXActions = buildUXActions(
       toolResults,
       chain.tool_calls as ToolCall[],
     );
 
     return {
       data: {
-        ux_actions: UXActionsde,
+        ux_actions: UXActions,
       },
     };
   }

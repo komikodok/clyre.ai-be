@@ -1,13 +1,14 @@
 import { StateGraph, END, START, Annotation } from "@langchain/langgraph";
 import { BaseMessage } from "@langchain/core/messages";
 import {
+  retrieveDocsNode,
+  retrieveMemoryNode,
   agentNode,
   executeToolNode,
-  finalToolNode,
   executeToolOrReturn,
-  retrieveDocsNode,
+  finalToolNode,
 } from "./nodes";
-import { ToolCall } from "langchain";
+import { ToolCall } from "@langchain/core/messages";
 
 export const AgentState = Annotation.Root({
   input: Annotation<string>,
@@ -39,18 +40,24 @@ export const AgentState = Annotation.Root({
     reducer: (x, y) => y ?? x,
     default: () => "",
   }),
+  memory: Annotation<string>({
+    reducer: (x, y) => y ?? x,
+    default: () => "",
+  }),
 });
 
 export type AgentExecutorState = typeof AgentState.State;
 
 const workflow = new StateGraph(AgentState)
   .addNode("retrieveDocsNode", retrieveDocsNode)
+  .addNode("retrieveMemoryNode", retrieveMemoryNode)
   .addNode("agentNode", agentNode)
-  .addNode("executeToolNode", executeToolNode)
   .addNode("finalToolNode", finalToolNode)
+  .addNode("executeToolNode", executeToolNode)
 
   .addEdge(START, "retrieveDocsNode")
-  .addEdge("retrieveDocsNode", "agentNode")
+  .addEdge("retrieveDocsNode", "retrieveMemoryNode")
+  .addEdge("retrieveMemoryNode", "agentNode")
   .addConditionalEdges("agentNode", executeToolOrReturn, {
     executeToolNode: "executeToolNode",
     [END]: END,

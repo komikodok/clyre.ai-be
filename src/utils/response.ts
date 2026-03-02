@@ -16,6 +16,7 @@ const successResponse = (
     ...data,
   });
 };
+
 const errorResponse = (
   res: Response,
   code: number,
@@ -23,15 +24,6 @@ const errorResponse = (
   error: any,
 ) => {
   logger.error({
-    meta: {
-      code,
-      status: "error",
-      message,
-    },
-    error: error,
-  });
-
-  return res.status(code).json({
     meta: {
       code,
       status: "error",

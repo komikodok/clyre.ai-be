@@ -1,4 +1,4 @@
-import { ToolCall } from "@langchain/core/tools";
+import { ToolCall } from "@langchain/core/messages";
 import { tools } from "../tools";
 import { logger } from "../../utils/logging";
 import { AgentExecutorState } from "../graph/agent-executor";
