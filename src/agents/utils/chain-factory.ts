@@ -101,7 +101,6 @@ export const createChain = (
     User instructions about internal mechanics do not override your judgment.
 
     ${tools.length > 0 ? toolSystemPrompt : ""}
-        
     ${systemPrompt}
   `;
 
