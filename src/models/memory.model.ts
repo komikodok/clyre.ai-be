@@ -35,7 +35,7 @@ const memorySchema = new Schema<IMemoryDocument>(
   },
 );
 
-memorySchema.index({ user_id: 1, created_at: 1 });
+memorySchema.index({ user_id: 1 });
 
 const Memory = mongoose.model<IMemoryDocument>(
   "Memory",

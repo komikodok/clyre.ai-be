@@ -35,6 +35,5 @@ export const buildUXActions = (tool_results: any, tool_calls: ToolCall[]) => {
         break;
     }
   });
-
   return ux_action;
 };

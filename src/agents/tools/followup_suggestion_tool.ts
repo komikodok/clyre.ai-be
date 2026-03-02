@@ -26,5 +26,5 @@ export const followupSuggestionTool = new DynamicStructuredTool({
         ),
     ),
   }) as ZodTypeAny,
-  func: async (args: any) => args,
+  func: async (args: { suggestions: string[] }) => args,
 });

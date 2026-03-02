@@ -60,7 +60,6 @@ class AgentService {
       },
     };
   }
-
   async *stream(
     params: { topic: string },
     data: { prompt: string; user_id: string; username?: string },

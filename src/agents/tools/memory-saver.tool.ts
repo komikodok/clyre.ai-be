@@ -20,7 +20,6 @@ export const memorySaverTool = new DynamicStructuredTool({
   }) as ZodTypeAny,
   func: async (args: { username: string; content: string }) => {
     const user = await User.findOne({ username: args.username });
-
     const memory = await Memory.findOneAndUpdate(
       { user_id: user._id },
       {

@@ -86,6 +86,7 @@ export const createChain = (
     - If you decide to call a tool, respond ONLY with tool calls. Do not produce natural language.
     - Use tools ONLY when they add clear, non-trivial value.
     
+    
     IMPORTANT: 
     - Call memory_saver_tool ONLY when there is critical, long-term valuable information (e.g., user preferences, medical history, key insights) that must be remembered across sessions. Do NOT call it for casual notes, temporary data, or every response.
     - Call switch_topic_tool ONLY when the user's topic changes. Do NOT call it for every response.

@@ -7,8 +7,6 @@ import { MongoDBAtlasVectorSearch } from "@langchain/mongodb";
 import { createEmbeddings } from "../utils/chain-factory";
 import mongoose from "mongoose";
 import { createChain, createChatModel } from "../utils/chain-factory";
-import { ChatPromptTemplate } from "@langchain/core/prompts";
-import { RunnableSequence } from "@langchain/core/runnables";
 
 export const retrieveDocsNode = async (state: AgentExecutorState) => {
   const { topic, input } = state;

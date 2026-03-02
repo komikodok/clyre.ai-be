@@ -19,5 +19,9 @@ export const switchTopicTool = new DynamicStructuredTool({
       .optional()
       .describe("Empathetic suggestion shown ONLY if intent_level is 'clear'"),
   }) as ZodTypeAny,
-  func: async (args: any) => args,
+  func: async (args: {
+    current_topic: "general" | "anxiety" | "insomnia" | "burnout";
+    target_topic: "general" | "anxiety" | "insomnia" | "burnout";
+    handoff_message?: string;
+  }) => args,
 });

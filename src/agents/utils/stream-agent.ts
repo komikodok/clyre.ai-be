@@ -6,7 +6,7 @@ import { ToolCall } from "langchain";
 export const streamAgent = async function* (
   input: {
     input: string;
-    topic: string;
+    topic: "general" | "anxiety" | "insomnia" | "burnout";
     username: string;
     chat_history?: (BaseMessage | BaseMessageChunk)[];
   },

@@ -3,7 +3,6 @@ interface TopicAction {
   target_topic?: string;
   message?: string;
 }
-
 interface FollowupSuggestion {
   type: "FOLLOWUP_SUGGESTION";
   suggestions: string[];
