@@ -9,6 +9,7 @@ import mongoose from "mongoose";
 import { createChain, createChatModel } from "../utils/chain-factory";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { RunnableSequence } from "@langchain/core/runnables";
+import { MemoryRepository } from "../../repositories/memory.repository";
 
 export const retrieveDocsNode = async (state: AgentExecutorState) => {
   const { topic, input } = state;
@@ -55,8 +56,30 @@ export const retrieveDocsNode = async (state: AgentExecutorState) => {
   }
 };
 
+export const retrieveMemoryNode = async (state: AgentExecutorState) => {
+  const { username } = state;
+
+  try {
+    if (!username || username === "Anonymous") {
+      return { memory: [] };
+    }
+
+    const memory = await MemoryRepository.getMemoryByUsername(username);
+    const optimizedMemory =
+      memory && memory.length > 0 ? `Memory: \n- ${memory.join("\n- ")}` : "";
+
+    return {
+      memory: optimizedMemory,
+    };
+  } catch (err) {
+    logger.error("Error retrieving memory", err);
+    return { memory: [] };
+  }
+};
+
 export const agentNode = async (state: AgentExecutorState) => {
-  const { topic, input, chat_history, retrieved_context, username } = state;
+  const { topic, input, chat_history, retrieved_context, username, memory } =
+    state;
 
   const activeChain = chains[topic as keyof typeof chains] || chains["general"];
 
@@ -68,7 +91,7 @@ export const agentNode = async (state: AgentExecutorState) => {
     ${optimizedContext}\n\n
 
     USER NAME: ${username}\n\n
-    
+    ${memory}\n\n
     USER INPUT: ${input}\n\n
   `;
 
@@ -76,6 +99,12 @@ export const agentNode = async (state: AgentExecutorState) => {
     input: contextualInput,
     chat_history,
   });
+
+  // Un-comment this line to see the total tokens used
+  // console.log(
+  //   "Full usage:",
+  //   JSON.stringify(aiMsg?.response_metadata?.usage, null, 2),
+  // );
 
   return {
     result: aiMsg.content,
@@ -100,43 +129,5 @@ export const executeToolNode = async (state: AgentExecutorState) => {
 
   return {
     tool_result: executeTools,
-  };
-};
-
-export const finalToolNode = async (state: AgentExecutorState) => {
-  const { input, result, tool_calls, tool_result, chat_history, username } =
-    state;
-
-  const toolResultsText = tool_calls
-    .map((toolCall, index) => {
-      const toolResult = tool_result[index];
-      const toolName = toolCall.name.toUpperCase();
-
-      return `${toolName}\n ${JSON.stringify(toolResult)}`;
-    })
-    .join("\n")
-    .replace(/{/g, "")
-    .replace(/}/g, "");
-
-  const systemPrompt = `
-    User name: {username}
-
-    Additional information from tools:
-    {tool_results}
-
-    Combine everything into a clear, natural, user-facing answer.
-    DO NOT mention tools, functions, JSON, or internal reasoning.
-    Just answer the user.
-  `;
-
-  const chain = createChain(systemPrompt, 0.7, []);
-  const aiMsg = await chain.invoke({
-    input,
-    username,
-    tool_results: toolResultsText,
-  });
-
-  return {
-    result: aiMsg.content,
   };
 };

@@ -1,6 +1,10 @@
+export const topics = ["general", "anxiety", "insomnia", "burnout"] as const;
+
+export type Topic = (typeof topics)[number];
+
 interface TopicAction {
   type: "SWITCH_TOPIC";
-  target_topic?: string;
+  target_topic?: Topic;
   message?: string;
 }
 
@@ -9,4 +13,13 @@ interface FollowupSuggestion {
   suggestions: string[];
 }
 
-export type UXAction = TopicAction | FollowupSuggestion | undefined;
+interface MemoryUpdateAction {
+  type: "MEMORY_UPDATE";
+  message?: string;
+}
+
+export type UXAction =
+  | TopicAction
+  | FollowupSuggestion
+  | MemoryUpdateAction
+  | undefined;

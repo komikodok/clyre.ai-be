@@ -1,9 +1,21 @@
-import { DynamicStructuredTool } from "@langchain/core/tools";
-import { z, ZodTypeAny } from "zod";
+import { tool } from "@langchain/core/tools";
+import { z } from "zod";
 
-export const followupSuggestionTool = new DynamicStructuredTool({
-  name: "followup_suggestion_tool",
-  description: `
+const followupSuggestionSchema = z.object({
+  suggestions: z.array(
+    z
+      .string()
+      .describe(
+        "A short, natural follow-up QUESTION from the user perspective",
+      ),
+  ),
+});
+
+export const followupSuggestionTool = tool(
+  (args: z.infer<typeof followupSuggestionSchema>) => args,
+  {
+    name: "followup_suggestion_tool",
+    description: `
     Generate 2–3 SHORT follow-up QUESTIONS
     that the USER is likely to ask next,
     based on the previous conversation.
@@ -17,14 +29,6 @@ export const followupSuggestionTool = new DynamicStructuredTool({
     These questions are ONLY for UI quick replies.
     The assistant must NOT say them in chat.
   `,
-  schema: z.object({
-    suggestions: z.array(
-      z
-        .string()
-        .describe(
-          "A short, natural follow-up QUESTION from the user perspective",
-        ),
-    ),
-  }) as ZodTypeAny,
-  func: async (args: any) => args,
-});
+    schema: followupSuggestionSchema,
+  },
+);
