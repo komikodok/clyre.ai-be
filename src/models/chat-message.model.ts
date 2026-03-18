@@ -13,7 +13,7 @@ const chatMessageSchema = new Schema<IChatMessageDocument>(
     },
     role: {
       type: String,
-      enum: ["user", "assistant", "tool"],
+      enum: ["user", "assistant"],
       required: true,
     },
     content: {

@@ -2,13 +2,15 @@ import { BaseMessage, BaseMessageChunk } from "@langchain/core/messages";
 import { agentExecutor } from "../graph/agent-executor";
 import { buildUXActions } from "../../utils/ux-actions";
 import { ToolCall } from "@langchain/core/messages";
+import { logger } from "../../utils/logging";
 
 export const streamAgent = async function* (
   input: {
     input: string;
-    topic: "general" | "anxiety" | "insomnia" | "burnout";
+    topic: string;
     username: string;
     chat_history?: (BaseMessage | BaseMessageChunk)[];
+    memory?: string[];
   },
   signal?: AbortSignal,
 ) {
@@ -18,8 +20,14 @@ export const streamAgent = async function* (
     if (signal?.aborted) {
       break;
     }
+
     if (s.event === "on_chat_model_stream") {
       const content = s.data?.chunk.content; // stream token <string>
+      const hasToolCalls = s.data?.chunk.tool_calls?.length > 0;
+      const currentNode = s.metadata?.langgraph_node;
+
+      // Skip streaming when tool calls and the current node is the agentNode to avoid sending incomplete information to the client. The complete information will be sent at the end of the chain execution.
+      if (hasToolCalls && currentNode === "agentNode") continue;
 
       if (content) {
         yield {

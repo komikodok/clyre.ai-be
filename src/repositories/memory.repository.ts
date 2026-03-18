@@ -1,4 +1,4 @@
-import Memory, { IMemory } from "../models/memory.model";
+import Memory from "../models/memory.model";
 import User from "../models/user.model";
 
 export class MemoryRepository {

@@ -6,6 +6,9 @@ import { buildUXActions } from "../utils/ux-actions";
 import { streamAgent } from "../agents/utils/stream-agent";
 import ChatMessageRepository from "../repositories/chat-message.repository";
 import { agentExecutor } from "../agents/graph/agent-executor";
+import { MemoryRepository } from "../repositories/memory.repository";
+
+const LIMIT_MESSAGE = 6;
 
 class AgentService {
   async new(prompt: string) {
@@ -30,13 +33,20 @@ class AgentService {
     data: { prompt: string; user_id: string; username?: string },
   ) {
     const { chatHistory, sessionMessageId } =
-      await ChatMessageRepository.getChatHistory(params.topic, data.user_id);
+      await ChatMessageRepository.getChatHistory(
+        params.topic,
+        data.user_id,
+        LIMIT_MESSAGE,
+      );
+
+    const memory = await MemoryRepository.getMemoryByUsername(data.username);
 
     const agent = await agentExecutor.invoke({
       input: data.prompt,
       topic: params.topic,
       username: data.username,
       chat_history: chatHistory,
+      memory,
     });
 
     const UXActions = buildUXActions(
@@ -44,14 +54,14 @@ class AgentService {
       agent.tool_calls as ToolCall[],
     );
 
-    // await ChatMessageRepository.saveMessages(sessionMessageId, [
-    //   { role: "user", content: data.input },
-    //   {
-    //     role: "assistant",
-    //     content: agent.result,
-    //     tool_calls: agent.tool_calls,
-    //   },
-    // ]);
+    await ChatMessageRepository.saveMessages(sessionMessageId, [
+      { role: "user", content: agent.input },
+      {
+        role: "assistant",
+        content: agent.result,
+        tool_calls: agent.tool_calls,
+      },
+    ]);
 
     return {
       data: {
@@ -66,7 +76,13 @@ class AgentService {
     signal?: AbortSignal,
   ) {
     const { chatHistory, sessionMessageId } =
-      await ChatMessageRepository.getChatHistory(params.topic, data.user_id);
+      await ChatMessageRepository.getChatHistory(
+        params.topic,
+        data.user_id,
+        LIMIT_MESSAGE,
+      );
+
+    const memory = await MemoryRepository.getMemoryByUsername(data.username);
 
     const agent = streamAgent(
       {
@@ -74,6 +90,7 @@ class AgentService {
         topic: params.topic,
         username: data.username,
         chat_history: chatHistory,
+        memory,
       },
       signal,
     );
@@ -88,14 +105,14 @@ class AgentService {
           break;
         case "__end__":
           const { data, ux_actions } = event.value;
-          // await ChatMessageRepository.saveMessages(sessionMessageId, [
-          //   { role: "user", content: data.input || "" },
-          //   {
-          //     role: "assistant",
-          //     content: data.result,
-          //     tool_calls: data.tool_calls,
-          //   },
-          // ]);
+          await ChatMessageRepository.saveMessages(sessionMessageId, [
+            { role: "user", content: data.input || "" },
+            {
+              role: "assistant",
+              content: data.result,
+              tool_calls: data.tool_calls,
+            },
+          ]);
 
           yield {
             type: "__end__",

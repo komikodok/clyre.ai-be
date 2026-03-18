@@ -6,10 +6,7 @@ import { logger } from "../../utils/logging";
 import { MongoDBAtlasVectorSearch } from "@langchain/mongodb";
 import { createEmbeddings } from "../utils/chain-factory";
 import mongoose from "mongoose";
-import { createChain, createChatModel } from "../utils/chain-factory";
-import { ChatPromptTemplate } from "@langchain/core/prompts";
-import { RunnableSequence } from "@langchain/core/runnables";
-import { MemoryRepository } from "../../repositories/memory.repository";
+import { createChain } from "../utils/chain-factory";
 
 export const retrieveDocsNode = async (state: AgentExecutorState) => {
   const { topic, input } = state;
@@ -56,27 +53,6 @@ export const retrieveDocsNode = async (state: AgentExecutorState) => {
   }
 };
 
-export const retrieveMemoryNode = async (state: AgentExecutorState) => {
-  const { username } = state;
-
-  try {
-    if (!username || username === "Anonymous") {
-      return { memory: [] };
-    }
-
-    const memory = await MemoryRepository.getMemoryByUsername(username);
-    const optimizedMemory =
-      memory && memory.length > 0 ? `Memory: \n- ${memory.join("\n- ")}` : "";
-
-    return {
-      memory: optimizedMemory,
-    };
-  } catch (err) {
-    logger.error("Error retrieving memory", err);
-    return { memory: [] };
-  }
-};
-
 export const agentNode = async (state: AgentExecutorState) => {
   const { topic, input, chat_history, retrieved_context, username, memory } =
     state;
@@ -87,11 +63,14 @@ export const agentNode = async (state: AgentExecutorState) => {
     ? `Context: ${retrieved_context.substring(0, 300)}`
     : "";
 
+  const optimizedMemory =
+    memory && memory.length > 0 ? `- ${memory.join("\n- ")}` : "";
+
   const contextualInput = `
     ${optimizedContext}\n\n
 
     USER NAME: ${username}\n\n
-    ${memory}\n\n
+    USER MEMORY: \n${optimizedMemory}\n\n
     USER INPUT: ${input}\n\n
   `;
 
@@ -101,10 +80,10 @@ export const agentNode = async (state: AgentExecutorState) => {
   });
 
   // Un-comment this line to see the total tokens used
-  console.log(
-    "Full usage:",
-    JSON.stringify(aiMsg?.response_metadata?.usage, null, 2),
-  );
+  // console.log(
+  //   "Full usage:",
+  //   JSON.stringify(aiMsg?.response_metadata?.usage, null, 2),
+  // );
 
   return {
     result: aiMsg.content,
@@ -166,10 +145,10 @@ export const finalToolNode = async (state: AgentExecutorState) => {
   });
 
   // Un-comment this line to see the total tokens used
-  console.log(
-    "Full usage:",
-    JSON.stringify(aiMsg?.response_metadata?.usage, null, 2),
-  );
+  // console.log(
+  //   "Full usage:",
+  //   JSON.stringify(aiMsg?.response_metadata?.usage, null, 2),
+  // );
 
   return {
     result: aiMsg.content,
